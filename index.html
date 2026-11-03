@@ -47,7 +47,7 @@
                 </div>
             </div>
             
-            <button id="btnCalcular" onclick="calcularRK4()">
+            <button id="btnCalcular" onclick="iniciarCalculo()">
                 Ejecutar Cálculo
             </button>
         </section>
@@ -56,20 +56,47 @@
         <section class="card results-section" id="panelResultados">
             <h2>Resultados del Análisis</h2>
             
-            <div class="chart-box">
-                <canvas id="grafica"></canvas>
+            <!-- Resumen de Métricas KPI -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-title">Iteraciones Totales</span>
+                    <span class="metric-value" id="kpiPasos">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Valor Final y(xf)</span>
+                    <span class="metric-value" id="kpiYFinal">0.000000</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Tamaño de Paso (h)</span>
+                    <span class="metric-value" id="kpiH">0.00</span>
+                </div>
             </div>
 
-            <h3 class="table-title">Registro de Iteraciones y Pendientes (k)</h3>
-            <div class="table-responsive">
-                <table id="tablaResultados">
-                    <!-- Se llena con JS -->
-                </table>
+            <!-- Navegación por Pestañas (Tabs UI) -->
+            <div class="tabs-header">
+                <button class="tab-btn active" id="btnTabGrafica" onclick="cambiarPestana('tab-grafica')">📊 Gráfica Interactiva</button>
+                <button class="tab-btn" id="btnTabTabla" onclick="cambiarPestana('tab-tabla')">📋 Tabla Completa con Lupa</button>
+            </div>
+
+            <!-- Contenido Pestaña 1: Gráfica -->
+            <div id="tab-grafica" class="tab-content active">
+                <div class="chart-box">
+                    <canvas id="grafica"></canvas>
+                </div>
+            </div>
+
+            <!-- Contenido Pestaña 2: Tabla -->
+            <div id="tab-tabla" class="tab-content" style="display: none;">
+                <div class="table-responsive">
+                    <table id="tablaResultados">
+                        <!-- Se llena dinámicamente con JS -->
+                    </table>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- Ventana flotante (Modal) para el desglose matemático por iteración -->
+    <!-- Ventana flotante (Modal) para la lupa por iteración -->
     <div id="modalSustitucion" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">&times;</span>
