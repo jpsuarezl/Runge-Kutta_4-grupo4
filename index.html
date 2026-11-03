@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Runge-Kutta 4 - Grupo 4</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <h1>Método de Runge-Kutta de cuarto orden (RK4)</h1>
+        <p>Grupo 4 - Ecuaciones Diferenciales</p>
+    </header>
+
+    <main class="dashboard">
+        <!-- Tarjeta de Controles -->
+        <section class="card form-section">
+            <div id="mensajeError" class="alerta-error"></div>
+
+            <div class="input-group">
+                <label for="eq">Ecuación diferencial f(x,y) =</label>
+                <input type="text" id="eq" placeholder="Ej: 2*x*y">
+            </div>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="x0">x inicial (xₙ)</label>
+                    <input type="number" id="x0" placeholder="Ej: 1" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="y0">y inicial (yₙ)</label>
+                    <input type="number" id="y0" placeholder="Ej: 1" step="any">
+                </div>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="xf">x final (xf)</label>
+                    <input type="number" id="xf" placeholder="Ej: 2" step="any">
+                </div>
+                <div class="input-group">
+                    <label for="h">Tamaño de paso (h)</label>
+                    <input type="number" id="h" placeholder="Ej: 0.1" step="any">
+                </div>
+            </div>
+            
+            <button id="btnCalcular" onclick="calcularRK4()">
+                Ejecutar Cálculo
+            </button>
+        </section>
+
+        <!-- Tarjeta de Resultados -->
+        <section class="card results-section" id="panelResultados">
+            <h2>Resultados del Análisis</h2>
+            
+            <div class="chart-box">
+                <canvas id="grafica"></canvas>
+            </div>
+
+            <h3 class="table-title">Registro de Iteraciones y Pendientes (k)</h3>
+            <div class="table-responsive">
+                <table id="tablaResultados">
+                    <!-- Se llena con JS -->
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Ventana flotante (Modal) para el desglose matemático por iteración -->
+    <div id="modalSustitucion" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarModal()">&times;</span>
+            <h3 style="color: #4338ca; margin-top: 0;" id="modalTitulo">Sustitución de datos</h3>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
+                Reemplazo explícito de los valores numéricos en la fórmula para esta iteración.
+            </p>
+            <div id="contenidoModal"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
