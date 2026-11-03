@@ -1,16 +1,33 @@
 let graficaRK4 = null;
-let detallesIteraciones = []; // Almacena el desglose de cada iteración para la lupa
+let detallesIteraciones = [];
 
 function mostrarError(msj) {
     const div = document.getElementById('mensajeError');
     div.innerText = msj;
     div.style.display = 'block';
-    document.getElementById('panelResultados').style.display = 'none';
+    const panel = document.getElementById('panelResultados');
+    panel.style.display = 'none';
+    panel.classList.remove('animar');
 }
 
 function ocultarError() {
     const div = document.getElementById('mensajeError');
     div.style.display = 'none';
+}
+
+function cambiarPestana(tabId) {
+    document.getElementById('tab-grafica').style.display = 'none';
+    document.getElementById('tab-tabla').style.display = 'none';
+    
+    document.getElementById('btnTabGrafica').classList.remove('active');
+    document.getElementById('btnTabTabla').classList.remove('active');
+
+    document.getElementById(tabId).style.display = 'block';
+    if (tabId === 'tab-grafica') {
+        document.getElementById('btnTabGrafica').classList.add('active');
+    } else {
+        document.getElementById('btnTabTabla').classList.add('active');
+    }
 }
 
 function abrirModal(index) {
@@ -38,6 +55,19 @@ function formatearSustitucion(eqStr, valX, valY) {
     formulaVisual = formulaVisual.replace(/\b x \b/gi, `(${valX})`).replace(/x/g, `(${valX})`);
     formulaVisual = formulaVisual.replace(/\b y \b/gi, `(${valY})`).replace(/y/g, `(${valY})`);
     return formulaVisual;
+}
+
+function iniciarCalculo() {
+    const btn = document.getElementById('btnCalcular');
+    btn.innerHTML = '⏳ Calculando...';
+    btn.disabled = true;
+
+    // Pausa breve para brindar feedback de carga interactiva
+    setTimeout(() => {
+        calcularRK4();
+        btn.innerHTML = 'Ejecutar Cálculo';
+        btn.disabled = false;
+    }, 180);
 }
 
 function calcularRK4() {
@@ -70,7 +100,7 @@ function calcularRK4() {
 
     let arr_x = [x];
     let arr_y = [y];
-    detallesIteraciones = []; // Reiniciar registro
+    detallesIteraciones = [];
 
     let htmlTabla = `
         <thead>
@@ -81,7 +111,6 @@ function calcularRK4() {
         <tbody>
     `;
     
-    // Fila 0 (inicial) no tiene cálculo de k
     htmlTabla += `<tr><td>0</td><td>${x.toFixed(4)}</td><td>-</td><td>-</td><td>-</td><td>-</td><td><strong>${y.toFixed(6)}</strong></td><td>-</td></tr>`;
 
     while (x < xf - (h * 0.001)) {
@@ -105,7 +134,6 @@ function calcularRK4() {
 
         iteracion++;
 
-        // Generar el desglose para la ventana flotante de esta iteración
         let contenidoModalHtml = `
             <div class="sustitucion-box">
                 <strong>Cálculo de k₁:</strong><br>
@@ -162,7 +190,6 @@ function calcularRK4() {
         arr_x.push(x);
         arr_y.push(y);
 
-        // Fila con el botón de la lupa (índice iteración - 1)
         let indexDetalle = iteracion - 1;
         htmlTabla += `<tr>
             <td>${iteracion}</td>
@@ -183,7 +210,16 @@ function calcularRK4() {
     
     htmlTabla += '</tbody>';
 
-    document.getElementById('panelResultados').style.display = 'block';
+    // Actualizar tarjetas de métricas KPI
+    document.getElementById('kpiPasos').innerText = iteracion;
+    document.getElementById('kpiYFinal').innerText = y.toFixed(6);
+    document.getElementById('kpiH').innerText = h;
+
+    // Mostrar panel de resultados con animación suave
+    const panel = document.getElementById('panelResultados');
+    panel.style.display = 'block';
+    panel.classList.add('animar');
+
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
     
     dibujarGrafica(arr_x, arr_y);
@@ -193,6 +229,11 @@ function dibujarGrafica(xData, yData) {
     const ctx = document.getElementById('grafica').getContext('2d');
     if (graficaRK4) graficaRK4.destroy();
 
+    // Crear degradado continuo para el área bajo la curva
+    const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+    gradient.addColorStop(0, 'rgba(67, 56, 202, 0.35)');
+    gradient.addColorStop(1, 'rgba(67, 56, 202, 0.0)');
+
     graficaRK4 = new Chart(ctx, {
         type: 'line',
         data: {
@@ -201,26 +242,30 @@ function dibujarGrafica(xData, yData) {
                 label: 'Aproximación RK4',
                 data: yData,
                 borderColor: '#4338ca', 
-                backgroundColor: 'rgba(67, 56, 202, 0.1)',
-                borderWidth: 2.5,
+                backgroundColor: gradient,
+                borderWidth: 3,
                 pointRadius: 4,
                 pointBackgroundColor: '#ffffff',
                 pointBorderColor: '#4338ca',
-                pointHoverRadius: 6,
+                pointHoverRadius: 7,
                 fill: true,
-                tension: 0.2
+                tension: 0.25
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 750,
+                easing: 'easeOutQuart'
+            },
             scales: {
-                x: { title: { display: true, text: 'Eje X', font: {weight: 'bold'} } },
-                y: { title: { display: true, text: 'Eje Y', font: {weight: 'bold'} } }
+                x: { title: { display: true, text: 'Variable Independiente (x)', font: {weight: 'bold'} } },
+                y: { title: { display: true, text: 'Variable Dependiente (y)', font: {weight: 'bold'} } }
             },
             plugins: {
                 legend: {
-                    labels: { font: { family: 'Inter' } }
+                    labels: { font: { family: 'Inter', weight: '500' } }
                 }
             }
         }
