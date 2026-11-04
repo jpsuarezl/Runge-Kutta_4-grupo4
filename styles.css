@@ -152,7 +152,6 @@ input:focus, .select-preset:focus {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-/* BOTONES DE AYUDA RÁPIDA DE SINTAXIS */
 .quick-helpers {
     display: flex;
     flex-wrap: wrap;
@@ -203,7 +202,6 @@ input:focus, .select-preset:focus {
     box-shadow: none;
 }
 
-/* CONTENEDOR FOTO / ILUSTRACIÓN */
 .physics-illustration {
     width: 100%;
     height: 120px;
@@ -246,7 +244,6 @@ input:focus, .select-preset:focus {
 .btn-subir-foto:hover { background: #eff6ff; }
 #inputFoto { display: none; }
 
-/* TARJETAS KPI (PARTE SUPERIOR DERECHA) */
 .kpi-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -280,7 +277,6 @@ input:focus, .select-preset:focus {
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 
-/* PESTAÑAS (TABS) */
 .tabs-nav {
     display: flex;
     border-bottom: 2px solid var(--border);
@@ -313,7 +309,6 @@ input:focus, .select-preset:focus {
     margin-bottom: 1rem;
 }
 
-/* TABLAS RESPONSIVAS */
 .table-wrap {
     overflow-x: auto;
     border-radius: 6px;
@@ -345,7 +340,6 @@ td {
 
 tr:hover td { background-color: #f8fafc; }
 
-/* MODAL GENERAL */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -379,7 +373,6 @@ tr:hover td { background-color: #f8fafc; }
     background: none; border: none;
 }
 
-/* MODAL DE INTEGRANTES */
 .team-list {
     list-style: none;
     margin-top: 1rem;
