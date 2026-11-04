@@ -90,42 +90,49 @@
                         </div>
                     </div>
 
-                    <!-- TECLADO VIRTUAL TÁCTIL (4 COLUMNAS) -->
+                    <!-- TECLADO VIRTUAL TÁCTIL CON FLECHAS DE NAVEGACIÓN -->
                     <div class="virtual-keypad">
-                        <button type="button" onclick="limpiarCampo()" class="btn-key-clear">C</button>
-                        <button type="button" onclick="borrarCaracter()" class="btn-key-action">⌫</button>
-                        <button type="button" onclick="insertarTexto('(')">(</button>
-                        <button type="button" onclick="insertarTexto(')')">)</button>
+                        <!-- Fila 1: Control, Borrado y Navegación con Flechas -->
+                        <button type="button" onclick="limpiarCampo()" class="btn-key-clear" title="Limpiar todo">C</button>
+                        <button type="button" onclick="borrarCaracter()" class="btn-key-action" title="Borrar uno">⌫</button>
+                        <button type="button" onclick="moverCursor(-1)" class="btn-key-nav" title="Mover a la izquierda">◀</button>
+                        <button type="button" onclick="moverCursor(1)" class="btn-key-nav" title="Mover a la derecha">▶</button>
 
+                        <!-- Fila 2: Funciones -->
                         <button type="button" onclick="insertarTexto('sin()')" class="btn-key-func">sin</button>
                         <button type="button" onclick="insertarTexto('cos()')" class="btn-key-func">cos</button>
                         <button type="button" onclick="insertarTexto('exp()')" class="btn-key-func">exp</button>
                         <button type="button" onclick="insertarTexto('sqrt()')" class="btn-key-func">sqrt</button>
 
+                        <!-- Fila 3: Operadores y Paréntesis -->
+                        <button type="button" onclick="insertarTexto('(')">(</button>
+                        <button type="button" onclick="insertarTexto(')')">)</button>
                         <button type="button" onclick="insertarTexto('^')">^</button>
                         <button type="button" onclick="insertarTexto('/')">/</button>
-                        <button type="button" onclick="insertarTexto('*')">*</button>
-                        <button type="button" onclick="insertarTexto('-')">-</button>
 
+                        <!-- Fila 4: Números 7-9 y Multiplicación -->
                         <button type="button" onclick="insertarTexto('7')">7</button>
                         <button type="button" onclick="insertarTexto('8')">8</button>
                         <button type="button" onclick="insertarTexto('9')">9</button>
-                        <button type="button" onclick="insertarTexto('+')">+</button>
+                        <button type="button" onclick="insertarTexto('*')">*</button>
 
+                        <!-- Fila 5: Números 4-6 y Resta -->
                         <button type="button" onclick="insertarTexto('4')">4</button>
                         <button type="button" onclick="insertarTexto('5')">5</button>
                         <button type="button" onclick="insertarTexto('6')">6</button>
-                        <button type="button" onclick="insertarTexto('x')" class="btn-key-var">x</button>
+                        <button type="button" onclick="insertarTexto('-')">-</button>
 
+                        <!-- Fila 6: Números 1-3 y Suma -->
                         <button type="button" onclick="insertarTexto('1')">1</button>
                         <button type="button" onclick="insertarTexto('2')">2</button>
                         <button type="button" onclick="insertarTexto('3')">3</button>
-                        <button type="button" onclick="insertarTexto('y')" class="btn-key-var">y</button>
+                        <button type="button" onclick="insertarTexto('+')">+</button>
 
+                        <!-- Fila 7: Cero, Punto y Variables -->
                         <button type="button" onclick="insertarTexto('0')">0</button>
                         <button type="button" onclick="insertarTexto('.')">.</button>
-                        <button type="button" onclick="insertarTexto('0.15')">0.15</button>
-                        <button type="button" onclick="insertarTexto('9.81')">9.81</button>
+                        <button type="button" onclick="insertarTexto('x')" class="btn-key-var">x</button>
+                        <button type="button" onclick="insertarTexto('y')" class="btn-key-var">y</button>
                     </div>
 
                     <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
