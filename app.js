@@ -2,7 +2,7 @@ let graficaRK4 = null;
 let detallesIteraciones = [];
 let campoActivo = null;
 
-// Base de datos de fenómenos físicos predeterminados
+// 1. Base de datos de fenómenos físicos predeterminados
 const presetsFisicos = {
     caida: {
         eq: "9.81 - 0.15*y",
@@ -52,15 +52,56 @@ const presetsFisicos = {
     }
 };
 
-// Selección de campo enfocado
+// 2. Definición global de dibujarGrafica (para evitar errores de inicialización)
+function dibujarGrafica(xData, yData, eqStr) {
+    if (typeof Chart === 'undefined') return;
+
+    const canvas = document.getElementById('grafica');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (graficaRK4) graficaRK4.destroy();
+
+    graficaRK4 = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: xData.map(v => v.toFixed(2)),
+            datasets: [{
+                label: `Estado y(x) — dy/dx = ${eqStr}`,
+                data: yData,
+                borderColor: '#4338ca',
+                backgroundColor: 'rgba(67, 56, 202, 0.08)',
+                borderWidth: 2.5,
+                pointRadius: 3,
+                fill: true,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } },
+                    grid: { color: '#f1f5f9' } 
+                },
+                y: { 
+                    title: { display: true, text: 'Estado (y)', font: { weight: 'bold' } },
+                    grid: { color: '#f1f5f9' } 
+                }
+            }
+        }
+    });
+}
+
+// 3. Selección y foco de campo
 function seleccionarCampo(inputElement) {
     document.querySelectorAll('.input-target').forEach(el => el.classList.remove('active-field'));
     campoActivo = inputElement;
     campoActivo.classList.add('active-field');
-    actualizarSombraCursor();
 }
 
-// Cargar preset seleccionado
+// 4. Cargar preset seleccionado
 function cambiarFenomeno() {
     const key = document.getElementById('selectFenomeno').value;
     const data = presetsFisicos[key];
@@ -82,38 +123,30 @@ function cambiarFenomeno() {
     }
 
     ocultarError();
-    actualizarSombraCursor();
 }
 
-// Muestra visualmente dónde está el cursor en el campo
-function actualizarSombraCursor() {
-    if (!campoActivo) campoActivo = document.getElementById('eq');
-    const input = campoActivo;
-    const pos = input.selectionStart != null ? input.selectionStart : input.value.length;
-    input.setSelectionRange(pos, pos);
-}
-
-// Mover cursor con las flechas ◀ y ▶
+// 5. Mover cursor con flechas ◀ y ▶
 function moverCursor(direccion) {
     if (!campoActivo) campoActivo = document.getElementById('eq');
-
     const input = campoActivo;
-    let pos = input.selectionStart != null ? input.selectionStart : input.value.length;
+
+    let pos = input.dataset.cursorPos ? parseInt(input.dataset.cursorPos) : input.value.length;
     let nuevaPos = pos + direccion;
 
     if (nuevaPos < 0) nuevaPos = 0;
     if (nuevaPos > input.value.length) nuevaPos = input.value.length;
 
-    input.setSelectionRange(nuevaPos, nuevaPos);
+    input.dataset.cursorPos = nuevaPos;
+    resaltarPosicionCursor(input, nuevaPos);
 }
 
-// Inserción interactiva respetando la posición del cursor
+// 6. Inserción de texto en la posición activa
 function insertarTexto(texto) {
     if (!campoActivo) campoActivo = document.getElementById('eq');
 
     const input = campoActivo;
     const val = input.value;
-    const pos = input.selectionStart != null ? input.selectionStart : val.length;
+    let pos = input.dataset.cursorPos ? parseInt(input.dataset.cursorPos) : val.length;
 
     input.value = val.substring(0, pos) + texto + val.substring(pos);
     
@@ -122,30 +155,40 @@ function insertarTexto(texto) {
         nuevaPos = pos + texto.length - 1;
     }
 
-    input.setSelectionRange(nuevaPos, nuevaPos);
+    input.dataset.cursorPos = nuevaPos;
+    resaltarPosicionCursor(input, nuevaPos);
 }
 
-// Borra el carácter exacto justo antes del cursor
+// 7. Borrado carácter por carácter
 function borrarCaracter() {
     if (!campoActivo) campoActivo = document.getElementById('eq');
 
     const input = campoActivo;
     const val = input.value;
-    const pos = input.selectionStart != null ? input.selectionStart : val.length;
+    let pos = input.dataset.cursorPos ? parseInt(input.dataset.cursorPos) : val.length;
 
     if (pos > 0) {
         input.value = val.substring(0, pos - 1) + val.substring(pos);
-        input.setSelectionRange(pos - 1, pos - 1);
+        input.dataset.cursorPos = pos - 1;
+        resaltarPosicionCursor(input, pos - 1);
     }
 }
 
-// Limpia el campo activo
+function resaltarPosicionCursor(input, pos) {
+    try {
+        input.focus();
+        input.setSelectionRange(pos, pos);
+    } catch (e) {}
+}
+
+// 8. Limpiar campo
 function limpiarCampo() {
     if (!campoActivo) campoActivo = document.getElementById('eq');
     campoActivo.value = '';
+    campoActivo.dataset.cursorPos = 0;
 }
 
-// Carga de foto del ejercicio
+// 9. Cargar Foto
 function cargarFotoCaso(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -165,7 +208,7 @@ function cargarFotoCaso(event) {
     reader.readAsDataURL(file);
 }
 
-// Manejo de Modales
+// 10. Modales
 function abrirModalEquipo() {
     document.getElementById('modalEquipo').classList.remove('hidden');
 }
@@ -217,7 +260,6 @@ function cambiarPestana(tabId) {
     }
 }
 
-// Formatear sustitución explícita en x e y
 function formatearSustitucion(eqStr, valX, valY) {
     return eqStr
         .replace(/\bx\b/gi, `(${valX})`)
@@ -242,6 +284,7 @@ function iniciarCalculo() {
     }, 100);
 }
 
+// 11. Cálculo RK4
 function calcularRK4() {
     ocultarError();
 
@@ -369,46 +412,7 @@ function calcularRK4() {
     dibujarGrafica(arr_x, arr_y, eqStr);
 }
 
-// Dibuja la curva solución dy/dx = f(x,y)
-function dibujarGrafica(xData, yData, eqStr) {
-    if (typeof Chart === 'undefined') return;
-
-    const ctx = document.getElementById('grafica').getContext('2d');
-    if (graficaRK4) graficaRK4.destroy();
-
-    graficaRK4 = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: xData.map(v => v.toFixed(2)),
-            datasets: [{
-                label: `Estado y(x) — dy/dx = ${eqStr}`,
-                data: yData,
-                borderColor: '#4338ca',
-                backgroundColor: 'rgba(67, 56, 202, 0.08)',
-                borderWidth: 2.5,
-                pointRadius: 3,
-                fill: true,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { 
-                    title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } },
-                    grid: { color: '#f1f5f9' } 
-                },
-                y: { 
-                    title: { display: true, text: 'Estado (y)', font: { weight: 'bold' } },
-                    grid: { color: '#f1f5f9' } 
-                }
-            }
-        }
-    });
-}
-
-// Inicializar preset por defecto al cargar la página
+// 12. Carga inicial al abrir la app
 window.onload = function() {
     cambiarFenomeno();
     campoActivo = document.getElementById('eq');
