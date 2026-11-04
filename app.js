@@ -4,29 +4,39 @@ let detallesIteraciones = [];
 function mostrarError(msj) {
     const div = document.getElementById('mensajeError');
     div.innerText = msj;
-    div.style.display = 'block';
+    div.classList.remove('hidden');
     const panel = document.getElementById('panelResultados');
-    panel.style.display = 'none';
-    panel.classList.remove('animar');
+    panel.classList.add('hidden');
+    panel.classList.remove('animate-fade-in');
 }
 
 function ocultarError() {
     const div = document.getElementById('mensajeError');
-    div.style.display = 'none';
+    div.classList.add('hidden');
 }
 
 function cambiarPestana(tabId) {
-    document.getElementById('tab-grafica').style.display = 'none';
-    document.getElementById('tab-tabla').style.display = 'none';
-    
-    document.getElementById('btnTabGrafica').classList.remove('active');
-    document.getElementById('btnTabTabla').classList.remove('active');
+    const tabGrafica = document.getElementById('tab-grafica');
+    const tabTabla = document.getElementById('tab-tabla');
+    const btnGrafica = document.getElementById('btnTabGrafica');
+    const btnTabla = document.getElementById('btnTabTabla');
 
-    document.getElementById(tabId).style.display = 'block';
     if (tabId === 'tab-grafica') {
-        document.getElementById('btnTabGrafica').classList.add('active');
+        tabGrafica.classList.remove('hidden');
+        tabGrafica.classList.add('block');
+        tabTabla.classList.add('hidden');
+        tabTabla.classList.remove('block');
+
+        btnGrafica.className = "py-2.5 px-4 text-sm font-semibold text-brand-700 border-b-2 border-brand-700 focus:outline-none transition-colors";
+        btnTabla.className = "py-2.5 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-brand-700 focus:outline-none transition-colors";
     } else {
-        document.getElementById('btnTabTabla').classList.add('active');
+        tabTabla.classList.remove('hidden');
+        tabTabla.classList.add('block');
+        tabGrafica.classList.add('hidden');
+        tabGrafica.classList.remove('block');
+
+        btnTabla.className = "py-2.5 px-4 text-sm font-semibold text-brand-700 border-b-2 border-brand-700 focus:outline-none transition-colors";
+        btnGrafica.className = "py-2.5 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-brand-700 focus:outline-none transition-colors";
     }
 }
 
@@ -36,17 +46,17 @@ function abrirModal(index) {
 
     document.getElementById('modalTitulo').innerText = `Procedimiento - Iteración ${detalle.iter}`;
     document.getElementById('contenidoModal').innerHTML = detalle.htmlModal;
-    document.getElementById('modalSustitucion').style.display = 'block';
+    document.getElementById('modalSustitucion').classList.remove('hidden');
 }
 
 function cerrarModal() {
-    document.getElementById('modalSustitucion').style.display = 'none';
+    document.getElementById('modalSustitucion').classList.add('hidden');
 }
 
 window.onclick = function(event) {
     const modal = document.getElementById('modalSustitucion');
     if (event.target == modal) {
-        modal.style.display = "none";
+        cerrarModal();
     }
 }
 
@@ -84,7 +94,7 @@ function calcularRK4() {
         return mostrarError("Por favor llene todos los campos numéricos.");
     }
     if (h <= 0) return mostrarError("El tamaño de paso (h) debe ser mayor a 0.");
-    if (xf <= x0) return mostrarError("El valor de x final (xf) debe ser mayor a x inicial (xₙ).");
+    if (xf <= x0) return mostrarError("El valor de x final (xf) debe ser mayor a x inicial (x₀).");
 
     let f;
     try {
@@ -114,26 +124,35 @@ function calcularRK4() {
     detallesIteraciones = [];
 
     let htmlTabla = `
-        <thead>
+        <thead class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase text-slate-500 tracking-wider">
             <tr>
-                <th>Iteración</th><th>x</th><th>k₁</th><th>k₂</th><th>k₃</th><th>k₄</th><th>y (RK4)</th>
-                ${f_exact ? '<th>y (Exacta)</th><th>Error Abs.</th>' : ''}
-                <th>Ver</th>
+                <th class="py-3 px-4">Iteración</th>
+                <th class="py-3 px-4">x</th>
+                <th class="py-3 px-4">k₁</th>
+                <th class="py-3 px-4">k₂</th>
+                <th class="py-3 px-4">k₃</th>
+                <th class="py-3 px-4">k₄</th>
+                <th class="py-3 px-4">y (RK4)</th>
+                ${f_exact ? '<th class="py-3 px-4">y (Exacta)</th><th class="py-3 px-4">Error Abs.</th>' : ''}
+                <th class="py-3 px-4 text-center">Ver</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
     `;
     
     let exact_i0 = f_exact ? f_exact.evaluate({ x: x }) : null;
     let error_i0 = f_exact ? Math.abs(exact_i0 - y) : null;
 
-    htmlTabla += `<tr>
-        <td>0</td>
-        <td>${x.toFixed(4)}</td>
-        <td>-</td><td>-</td><td>-</td><td>-</td>
-        <td><strong>${y.toFixed(6)}</strong></td>
-        ${f_exact ? `<td>${exact_i0.toFixed(6)}</td><td>${error_i0.toFixed(6)}</td>` : ''}
-        <td>-</td>
+    htmlTabla += `<tr class="hover:bg-slate-50/80 transition-colors">
+        <td class="py-3 px-4 font-medium">0</td>
+        <td class="py-3 px-4 font-mono">${x.toFixed(4)}</td>
+        <td class="py-3 px-4 text-slate-400">-</td>
+        <td class="py-3 px-4 text-slate-400">-</td>
+        <td class="py-3 px-4 text-slate-400">-</td>
+        <td class="py-3 px-4 text-slate-400">-</td>
+        <td class="py-3 px-4 font-mono font-bold text-brand-700">${y.toFixed(6)}</td>
+        ${f_exact ? `<td class="py-3 px-4 font-mono text-sky-700">${exact_i0.toFixed(6)}</td><td class="py-3 px-4 font-mono text-slate-500">${error_i0.toFixed(6)}</td>` : ''}
+        <td class="py-3 px-4 text-center text-slate-400">-</td>
     </tr>`;
 
     while (x < xf - (h * 0.001)) {
@@ -146,7 +165,7 @@ function calcularRK4() {
         let k2 = f.evaluate({ x: x2, y: y2 });
 
         let x3 = x + h/2;
-        let y3 = y + (h/2)*k3;
+        let y3 = y + (h/2)*k2;
         let k3 = f.evaluate({ x: x3, y: y3 });
 
         let x4 = x + h;
@@ -158,42 +177,42 @@ function calcularRK4() {
         iteracion++;
 
         let contenidoModalHtml = `
-            <div class="sustitucion-box">
-                <strong>Cálculo de k₁:</strong><br>
+            <div class="p-4 bg-slate-50 border-l-4 border-brand-600 rounded-r-xl border border-slate-200/80 font-mono text-sm leading-relaxed">
+                <strong class="text-slate-800">Cálculo de k₁:</strong><br>
                 k₁ = f(xₙ, yₙ) = f(${x1.toFixed(4)}, ${y1.toFixed(6)})<br>
-                Sustituyendo en f(x,y) = <code>${eqStr}</code>:<br>
+                Sustituyendo en f(x,y) = <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200">${eqStr}</code>:<br>
                 = ${formatearSustitucion(eqStr, x1.toFixed(4), y1.toFixed(6))}<br>
-                <span style="color: #4338ca; font-weight: bold; display:inline-block; margin-top:5px;">→ k₁ = ${k1.toFixed(6)}</span>
+                <span class="text-brand-700 font-bold block mt-1.5">→ k₁ = ${k1.toFixed(6)}</span>
             </div>
             
-            <div class="sustitucion-box">
-                <strong>Cálculo de k₂:</strong><br>
+            <div class="p-4 bg-slate-50 border-l-4 border-brand-600 rounded-r-xl border border-slate-200/80 font-mono text-sm leading-relaxed">
+                <strong class="text-slate-800">Cálculo de k₂:</strong><br>
                 x = xₙ + h/2 = ${x1.toFixed(4)} + ${h}/2 = ${x2.toFixed(4)}<br>
                 y = yₙ + (h/2)·k₁ = ${y1.toFixed(6)} + (${h}/2)·(${k1.toFixed(6)}) = ${y2.toFixed(6)}<br>
                 k₂ = f(${x2.toFixed(4)}, ${y2.toFixed(6)})<br>
-                Sustituyendo en f(x,y) = <code>${eqStr}</code>:<br>
+                Sustituyendo en f(x,y) = <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200">${eqStr}</code>:<br>
                 = ${formatearSustitucion(eqStr, x2.toFixed(4), y2.toFixed(6))}<br>
-                <span style="color: #4338ca; font-weight: bold; display:inline-block; margin-top:5px;">→ k₂ = ${k2.toFixed(6)}</span>
+                <span class="text-brand-700 font-bold block mt-1.5">→ k₂ = ${k2.toFixed(6)}</span>
             </div>
             
-            <div class="sustitucion-box">
-                <strong>Cálculo de k₃:</strong><br>
+            <div class="p-4 bg-slate-50 border-l-4 border-brand-600 rounded-r-xl border border-slate-200/80 font-mono text-sm leading-relaxed">
+                <strong class="text-slate-800">Cálculo de k₃:</strong><br>
                 x = xₙ + h/2 = ${x1.toFixed(4)} + ${h}/2 = ${x3.toFixed(4)}<br>
                 y = yₙ + (h/2)·k₂ = ${y1.toFixed(6)} + (${h}/2)·(${k2.toFixed(6)}) = ${y3.toFixed(6)}<br>
                 k₃ = f(${x3.toFixed(4)}, ${y3.toFixed(6)})<br>
-                Sustituyendo en f(x,y) = <code>${eqStr}</code>:<br>
+                Sustituyendo en f(x,y) = <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200">${eqStr}</code>:<br>
                 = ${formatearSustitucion(eqStr, x3.toFixed(4), y3.toFixed(6))}<br>
-                <span style="color: #4338ca; font-weight: bold; display:inline-block; margin-top:5px;">→ k₃ = ${k3.toFixed(6)}</span>
+                <span class="text-brand-700 font-bold block mt-1.5">→ k₃ = ${k3.toFixed(6)}</span>
             </div>
             
-            <div class="sustitucion-box">
-                <strong>Cálculo de k₄:</strong><br>
+            <div class="p-4 bg-slate-50 border-l-4 border-brand-600 rounded-r-xl border border-slate-200/80 font-mono text-sm leading-relaxed">
+                <strong class="text-slate-800">Cálculo de k₄:</strong><br>
                 x = xₙ + h = ${x1.toFixed(4)} + ${h} = ${x4.toFixed(4)}<br>
                 y = yₙ + h·k₃ = ${y1.toFixed(6)} + ${h}·(${k3.toFixed(6)}) = ${y4.toFixed(6)}<br>
                 k₄ = f(${x4.toFixed(4)}, ${y4.toFixed(6)})<br>
-                Sustituyendo en f(x,y) = <code>${eqStr}</code>:<br>
+                Sustituyendo en f(x,y) = <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200">${eqStr}</code>:<br>
                 = ${formatearSustitucion(eqStr, x4.toFixed(4), y4.toFixed(6))}<br>
-                <span style="color: #4338ca; font-weight: bold; display:inline-block; margin-top:5px;">→ k₄ = ${k4.toFixed(6)}</span>
+                <span class="text-brand-700 font-bold block mt-1.5">→ k₄ = ${k4.toFixed(6)}</span>
             </div>
         `;
 
@@ -218,16 +237,21 @@ function calcularRK4() {
         if (f_exact) arr_exacta.push(valExacto);
 
         let indexDetalle = iteracion - 1;
-        htmlTabla += `<tr>
-            <td>${iteracion}</td>
-            <td>${x.toFixed(4)}</td>
-            <td>${k1.toFixed(4)}</td>
-            <td>${k2.toFixed(4)}</td>
-            <td>${k3.toFixed(4)}</td>
-            <td>${k4.toFixed(4)}</td>
-            <td><strong>${y.toFixed(6)}</strong></td>
-            ${f_exact ? `<td>${valExacto.toFixed(6)}</td><td>${errAbs.toExponential(3)}</td>` : ''}
-            <td><button class="btn-lupa" onclick="abrirModal(${indexDetalle})" title="Ver procedimiento">🔍</button></td>
+        htmlTabla += `<tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-3 px-4 font-medium">${iteracion}</td>
+            <td class="py-3 px-4 font-mono">${x.toFixed(4)}</td>
+            <td class="py-3 px-4 font-mono text-slate-600">${k1.toFixed(4)}</td>
+            <td class="py-3 px-4 font-mono text-slate-600">${k2.toFixed(4)}</td>
+            <td class="py-3 px-4 font-mono text-slate-600">${k3.toFixed(4)}</td>
+            <td class="py-3 px-4 font-mono text-slate-600">${k4.toFixed(4)}</td>
+            <td class="py-3 px-4 font-mono font-bold text-brand-700">${y.toFixed(6)}</td>
+            ${f_exact ? `<td class="py-3 px-4 font-mono text-sky-700">${valExacto.toFixed(6)}</td><td class="py-3 px-4 font-mono text-slate-500">${errAbs.toExponential(3)}</td>` : ''}
+            <td class="py-3 px-4 text-center">
+                <button onclick="abrirModal(${indexDetalle})" title="Ver procedimiento"
+                    class="p-1.5 text-slate-500 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-all transform hover:scale-110">
+                    🔍
+                </button>
+            </td>
         </tr>`;
 
         if (iteracion > 5000) {
@@ -244,15 +268,15 @@ function calcularRK4() {
     document.getElementById('kpiH').innerText = h;
 
     // Badges sobre la gráfica
-    let badgeHtml = `<span class="eq-badge">EDO: dy/dx = ${eqStr}</span>`;
+    let badgeHtml = `<span class="inline-flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg font-mono text-xs font-semibold">EDO: dy/dx = ${eqStr}</span>`;
     if (eqExactaStr) {
-        badgeHtml += `<span class="eq-badge" style="background:#0284c7; color:#fff; border-color:#0369a1;">Solución Exacta: y(x) = ${eqExactaStr}</span>`;
+        badgeHtml += `<span class="inline-flex items-center px-3 py-1 bg-sky-600 text-white rounded-lg font-mono text-xs font-semibold shadow-sm">Solución Exacta: y(x) = ${eqExactaStr}</span>`;
     }
     document.getElementById('eqBadgeContainer').innerHTML = badgeHtml;
 
     const panel = document.getElementById('panelResultados');
-    panel.style.display = 'block';
-    panel.classList.add('animar');
+    panel.classList.remove('hidden');
+    panel.classList.add('animate-fade-in');
 
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
     
@@ -264,19 +288,19 @@ function dibujarGrafica(xData, yData, exactData, eqStr, eqExactaStr) {
     if (graficaRK4) graficaRK4.destroy();
 
     const gradient = ctx.createLinearGradient(0, 0, 0, 320);
-    gradient.addColorStop(0, 'rgba(67, 56, 202, 0.35)');
-    gradient.addColorStop(1, 'rgba(67, 56, 202, 0.0)');
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.35)');
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
 
     const datasets = [
         {
             label: `RK4: dy/dx = ${eqStr}`,
             data: yData,
-            borderColor: '#4338ca', 
+            borderColor: '#4f46e5', 
             backgroundColor: gradient,
             borderWidth: 3,
             pointRadius: 4,
             pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#4338ca',
+            pointBorderColor: '#4f46e5',
             pointHoverRadius: 7,
             fill: true,
             tension: 0.25
@@ -311,8 +335,14 @@ function dibujarGrafica(xData, yData, exactData, eqStr, eqExactaStr) {
                 easing: 'easeOutQuart'
             },
             scales: {
-                x: { title: { display: true, text: 'Variable Independiente (x)', font: {weight: 'bold'} } },
-                y: { title: { display: true, text: 'Variable Dependiente (y)', font: {weight: 'bold'} } }
+                x: { 
+                    title: { display: true, text: 'Variable Independiente (x)', font: { family: 'Inter', weight: 'bold' } },
+                    grid: { color: '#f1f5f9' }
+                },
+                y: { 
+                    title: { display: true, text: 'Variable Dependiente (y)', font: { family: 'Inter', weight: 'bold' } },
+                    grid: { color: '#f1f5f9' }
+                }
             },
             plugins: {
                 legend: {
