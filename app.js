@@ -1,13 +1,13 @@
 let graficaRK4 = null;
 let detallesIteraciones = [];
 
-// Base de datos de fenómenos físicos predeterminados
+// Base de datos de fenómenos físicos predeterminados (variables t0 y tf)
 const presetsFisicos = {
     caida: {
         eq: "9.81 - 0.15*y",
-        x0: "0",
+        t0: "0",
         y0: "0",
-        xf: "10",
+        tf: "10",
         h: "0.2",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <circle cx="90" cy="30" r="12" fill="#ef4444"/>
@@ -18,9 +18,9 @@ const presetsFisicos = {
     },
     newton: {
         eq: "-0.15 * (y - 20)",
-        x0: "0",
+        t0: "0",
         y0: "90",
-        xf: "30",
+        tf: "30",
         h: "1",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <rect x="65" y="35" width="50" height="40" rx="4" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="2"/>
@@ -31,9 +31,9 @@ const presetsFisicos = {
     },
     poblacion: {
         eq: "0.08 * y * (1 - y / 1000)",
-        x0: "0",
+        t0: "0",
         y0: "50",
-        xf: "100",
+        tf: "100",
         h: "2",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <path d="M20 75 Q 70 70 90 40 T 160 15" stroke="#10b981" stroke-width="2.5" fill="none"/>
@@ -43,9 +43,9 @@ const presetsFisicos = {
     },
     custom: {
         eq: "y - t^2 + 1",
-        x0: "0",
+        t0: "0",
         y0: "0.5",
-        xf: "2",
+        tf: "2",
         h: "0.2",
         svgHTML: `<div style="text-align:center; color:#64748b; font-size:0.8rem;">✏️ Caso Personalizado</div>`
     }
@@ -58,9 +58,9 @@ function cambiarFenomeno() {
     if (!data) return;
 
     document.getElementById('eq').value = data.eq;
-    document.getElementById('x0').value = data.x0;
+    document.getElementById('t0').value = data.t0;
     document.getElementById('y0').value = data.y0;
-    document.getElementById('xf').value = data.xf;
+    document.getElementById('tf').value = data.tf;
     document.getElementById('h').value = data.h;
 
     const preview = document.getElementById('panelFotoPreview');
@@ -152,10 +152,10 @@ function cambiarPestana(tabId) {
     }
 }
 
+// Formatear sustitución explícita en t e y
 function formatearSustitucion(eqStr, valT, valY) {
     return eqStr
         .replace(/\bt\b/gi, `(${valT})`)
-        .replace(/\bx\b/gi, `(${valT})`)
         .replace(/\by\b/gi, `(${valY})`);
 }
 
@@ -185,26 +185,25 @@ function calcularRK4() {
     }
 
     const eqStr = document.getElementById('eq').value.trim();
-    const x0 = parseFloat(document.getElementById('x0').value);
+    const t0 = parseFloat(document.getElementById('t0').value);
     const y0 = parseFloat(document.getElementById('y0').value);
-    const xf = parseFloat(document.getElementById('xf').value);
+    const tf = parseFloat(document.getElementById('tf').value);
     const h = parseFloat(document.getElementById('h').value);
 
     if (!eqStr) return mostrarError("Ingrese la ecuación diferencial.");
-    if (isNaN(x0) || isNaN(y0) || isNaN(xf) || isNaN(h)) return mostrarError("Llene todos los valores numéricos.");
+    if (isNaN(t0) || isNaN(y0) || isNaN(tf) || isNaN(h)) return mostrarError("Llene todos los valores numéricos.");
     if (h <= 0) return mostrarError("El paso (h) debe ser mayor a 0.");
-    if (xf <= x0) return mostrarError("El tiempo final (tf) debe ser mayor al inicial (t₀).");
+    if (tf <= t0) return mostrarError("El tiempo final (tf) debe ser mayor al inicial (t₀).");
 
     let f;
     try {
         f = math.compile(eqStr);
-        // Soporta tanto 't' como 'x' como variable independiente
-        f.evaluate({ t: x0, x: x0, y: y0 });
+        f.evaluate({ t: t0, y: y0 });
     } catch (error) {
         return mostrarError("Sintaxis de ecuación no válida. Use '*' para multiplicar (ej: 0.15*y).");
     }
 
-    let t = x0;
+    let t = t0;
     let y = y0;
     let iteracion = 0;
 
@@ -235,18 +234,18 @@ function calcularRK4() {
             </tr>
     `;
 
-    while (t < xf - (h * 0.001)) {
+    while (t < tf - (h * 0.001)) {
         let t1 = t, y1 = y;
-        let k1 = f.evaluate({ t: t1, x: t1, y: y1 });
+        let k1 = f.evaluate({ t: t1, y: y1 });
 
         let t2 = t + h/2, y2 = y + (h/2)*k1;
-        let k2 = f.evaluate({ t: t2, x: t2, y: y2 });
+        let k2 = f.evaluate({ t: t2, y: y2 });
 
         let t3 = t + h/2, y3 = y + (h/2)*k2;
-        let k3 = f.evaluate({ t: t3, x: t3, y: y3 });
+        let k3 = f.evaluate({ t: t3, y: y3 });
 
         let t4 = t + h, y4 = y + h*k3;
-        let k4 = f.evaluate({ t: t4, x: t4, y: y4 });
+        let k4 = f.evaluate({ t: t4, y: y4 });
 
         let y_next = y + (h / 6) * (k1 + 2*k2 + 2*k3 + k4);
         iteracion++;
