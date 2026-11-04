@@ -50,10 +50,9 @@ window.onclick = function(event) {
 }
 
 function formatearSustitucion(eqStr, valX, valY) {
-    let formulaVisual = eqStr;
-    formulaVisual = formulaVisual.replace(/\b x \b/gi, `(${valX})`).replace(/x/g, `(${valX})`);
-    formulaVisual = formulaVisual.replace(/\b y \b/gi, `(${valY})`).replace(/y/g, `(${valY})`);
-    return formulaVisual;
+    return eqStr
+        .replace(/\bx\b/gi, `(${valX})`)
+        .replace(/\by\b/gi, `(${valY})`);
 }
 
 function iniciarCalculo() {
@@ -71,8 +70,12 @@ function iniciarCalculo() {
 function calcularRK4() {
     ocultarError();
 
+    // Verificación de carga de la librería Math.js
+    if (typeof math === 'undefined') {
+        return mostrarError("Error: La librería Math.js no se cargó correctamente. Verifique su conexión a internet.");
+    }
+
     const eqStr = document.getElementById('eq').value.trim();
-    const eqExactaStr = document.getElementById('eqExacta').value.trim();
     const x0 = parseFloat(document.getElementById('x0').value);
     const y0 = parseFloat(document.getElementById('y0').value);
     const xf = parseFloat(document.getElementById('xf').value);
@@ -93,23 +96,12 @@ function calcularRK4() {
         return mostrarError("Sintaxis inválida en f(x,y). Recuerde usar '*' para multiplicar (ej: 2*x*y).");
     }
 
-    let f_exact = null;
-    if (eqExactaStr) {
-        try {
-            f_exact = math.compile(eqExactaStr);
-            f_exact.evaluate({ x: x0 });
-        } catch (error) {
-            return mostrarError("Sintaxis inválida en la solución exacta y(x). Verifique la fórmula.");
-        }
-    }
-
     let x = x0;
     let y = y0;
     let iteracion = 0;
 
     let arr_x = [x];
     let arr_y = [y];
-    let arr_exacta = f_exact ? [f_exact.evaluate({ x: x })] : [];
     detallesIteraciones = [];
 
     let htmlTabla = `
@@ -122,15 +114,11 @@ function calcularRK4() {
                 <th>k₃</th>
                 <th>k₄</th>
                 <th>y (RK4)</th>
-                ${f_exact ? '<th>y (Exacta)</th><th>Error Abs.</th>' : ''}
                 <th style="text-align: center;">Ver</th>
             </tr>
         </thead>
         <tbody>
     `;
-    
-    let exact_i0 = f_exact ? f_exact.evaluate({ x: x }) : null;
-    let error_i0 = f_exact ? Math.abs(exact_i0 - y) : null;
 
     htmlTabla += `<tr>
         <td>0</td>
@@ -140,7 +128,6 @@ function calcularRK4() {
         <td style="color: #94a3b8;">-</td>
         <td style="color: #94a3b8;">-</td>
         <td style="font-weight: 700; color: #4338ca;">${y.toFixed(6)}</td>
-        ${f_exact ? `<td style="color: #0284c7;">${exact_i0.toFixed(6)}</td><td>${error_i0.toFixed(6)}</td>` : ''}
         <td style="text-align: center; color: #94a3b8;">-</td>
     </tr>`;
 
@@ -218,12 +205,8 @@ function calcularRK4() {
             return;
         }
 
-        let valExacto = f_exact ? f_exact.evaluate({ x: x }) : null;
-        let errAbs = f_exact ? Math.abs(valExacto - y) : null;
-
         arr_x.push(x);
         arr_y.push(y);
-        if (f_exact) arr_exacta.push(valExacto);
 
         let indexDetalle = iteracion - 1;
         htmlTabla += `<tr>
@@ -234,7 +217,6 @@ function calcularRK4() {
             <td>${k3.toFixed(4)}</td>
             <td>${k4.toFixed(4)}</td>
             <td style="font-weight: 700; color: #4338ca;">${y.toFixed(6)}</td>
-            ${f_exact ? `<td style="color: #0284c7;">${valExacto.toFixed(6)}</td><td>${errAbs.toExponential(3)}</td>` : ''}
             <td style="text-align: center;"><button class="btn-lupa" onclick="abrirModal(${indexDetalle})" title="Ver procedimiento">🔍</button></td>
         </tr>`;
 
@@ -251,22 +233,18 @@ function calcularRK4() {
     document.getElementById('kpiYFinal').innerText = y.toFixed(6);
     document.getElementById('kpiH').innerText = h;
 
-    // Badges sobre la gráfica
-    let badgeHtml = `<span class="eq-badge">EDO: dy/dx = ${eqStr}</span>`;
-    if (eqExactaStr) {
-        badgeHtml += `<span class="eq-badge exact">Solución Exacta: y(x) = ${eqExactaStr}</span>`;
-    }
-    document.getElementById('eqBadgeContainer').innerHTML = badgeHtml;
+    // Badge sobre la gráfica
+    document.getElementById('eqBadgeContainer').innerHTML = `<span class="eq-badge">EDO: dy/dx = ${eqStr}</span>`;
 
     const panel = document.getElementById('panelResultados');
     panel.classList.remove('hidden');
 
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
     
-    dibujarGrafica(arr_x, arr_y, arr_exacta, eqStr, eqExactaStr);
+    dibujarGrafica(arr_x, arr_y, eqStr);
 }
 
-function dibujarGrafica(xData, yData, exactData, eqStr, eqExactaStr) {
+function dibujarGrafica(xData, yData, eqStr) {
     const ctx = document.getElementById('grafica').getContext('2d');
     if (graficaRK4) graficaRK4.destroy();
 
@@ -274,41 +252,23 @@ function dibujarGrafica(xData, yData, exactData, eqStr, eqExactaStr) {
     gradient.addColorStop(0, 'rgba(67, 56, 202, 0.35)');
     gradient.addColorStop(1, 'rgba(67, 56, 202, 0.0)');
 
-    const datasets = [
-        {
-            label: `RK4: dy/dx = ${eqStr}`,
-            data: yData,
-            borderColor: '#4338ca', 
-            backgroundColor: gradient,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointBackgroundColor: '#ffffff',
-            pointBorderColor: '#4338ca',
-            pointHoverRadius: 7,
-            fill: true,
-            tension: 0.25
-        }
-    ];
-
-    if (exactData && exactData.length > 0) {
-        datasets.push({
-            label: `Exacta: y(x) = ${eqExactaStr}`,
-            data: exactData,
-            borderColor: '#0f172a',
-            borderDash: [6, 4],
-            borderWidth: 2.5,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            fill: false,
-            tension: 0.25
-        });
-    }
-
     graficaRK4 = new Chart(ctx, {
         type: 'line',
         data: {
             labels: xData.map(val => val.toFixed(2)),
-            datasets: datasets
+            datasets: [{
+                label: `Aproximación RK4: dy/dx = ${eqStr}`,
+                data: yData,
+                borderColor: '#4338ca', 
+                backgroundColor: gradient,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#4338ca',
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.25
+            }]
         },
         options: {
             responsive: true,
@@ -335,9 +295,7 @@ function dibujarGrafica(xData, yData, exactData, eqStr, eqExactaStr) {
                 },
                 title: {
                     display: true,
-                    text: exactData && exactData.length > 0 
-                        ? `Comparación: dy/dx = ${eqStr} vs. Solución Exacta y(x) = ${eqExactaStr}` 
-                        : `Aproximación Numérica RK4 para dy/dx = ${eqStr}`,
+                    text: `Aproximación Numérica RK4 para dy/dx = ${eqStr}`,
                     font: { family: 'Plus Jakarta Sans', size: 14, weight: '700' },
                     color: '#0c4a6e',
                     padding: { bottom: 15 }
