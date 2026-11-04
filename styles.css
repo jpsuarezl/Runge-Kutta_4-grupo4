@@ -161,7 +161,7 @@ input.font-mono {
     background-color: #f5f3ff;
 }
 
-/* TECLADO VIRTUAL TÁCTIL MÓVIL (4 COLUMNAS) */
+/* TECLADO VIRTUAL TÁCTIL (4 COLUMNAS) */
 .virtual-keypad {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -219,6 +219,17 @@ input.font-mono {
     background: #fee2e2;
     border-color: #fca5a5;
     color: #991b1b;
+}
+
+.virtual-keypad .btn-key-nav {
+    background: #e0f2fe;
+    border-color: #bae6fd;
+    color: #0369a1;
+    font-size: 1rem;
+}
+
+.virtual-keypad .btn-key-nav:hover {
+    background: #bae6fd;
 }
 
 .btn-action {
