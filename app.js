@@ -43,11 +43,11 @@ const presetsFisicos = {
         </svg>`
     },
     custom: {
-        eq: "y - x^2 + 1",
-        x0: "0",
-        y0: "0.5",
-        xf: "2",
-        h: "0.2",
+        eq: "",
+        x0: "",
+        y0: "",
+        xf: "",
+        h: "",
         svgHTML: `<div style="text-align:center; color:#64748b; font-size:0.8rem;">✏️ Caso Personalizado</div>`
     }
 };
@@ -79,6 +79,8 @@ function cambiarFenomeno() {
         svgContainer.innerHTML = data.svgHTML;
         svgContainer.style.display = 'block';
     }
+
+    ocultarError();
 }
 
 // Inserción interactiva desde el teclado virtual sobre el campo activo
