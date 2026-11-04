@@ -5,26 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Método de Runge-Kutta 4° Orden - Grupo 4</title>
     
-    <!-- Fuentes -->
+    <!-- Tipografía y Librerías Externas -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Librerías de Cálculo y Gráficas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Hoja de Estilos Personalizada -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <div class="wrapper">
-        <!-- Encabezado Principal -->
+        <!-- Encabezado -->
         <header>
             <span class="brand-badge">Ecuaciones Diferenciales • Grupo 4</span>
             <h1>Método de Runge-Kutta 4° Orden</h1>
-            <p>Calculadora interactiva de aproximación numérica y análisis de error</p>
+            <p>Calculadora interactiva de aproximación numérica</p>
         </header>
 
         <main>
@@ -37,13 +35,6 @@
                         Ecuación diferencial <span class="code-label">dy/dx = f(x,y)</span>:
                     </label>
                     <input type="text" id="eq" class="font-mono" placeholder="Ej: y - x^2 + 1">
-                </div>
-
-                <div class="input-group">
-                    <label for="eqExacta">
-                        Solución exacta analítica <span class="code-label exact">y(x)</span> <span class="text-muted">(Opcional)</span>:
-                    </label>
-                    <input type="text" id="eqExacta" class="font-mono" placeholder="Ej: (x+1)^2 - 0.5*exp(x)">
                 </div>
 
                 <div class="form-grid-2">
@@ -93,9 +84,9 @@
                     </div>
                 </div>
 
-                <!-- Pestañas -->
+                <!-- Navegación de Pestañas -->
                 <div class="tabs-nav">
-                    <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">📊 Gráfica Comparativa</button>
+                    <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">📊 Gráfica de la Solución</button>
                     <button id="btnTabTabla" class="tab-btn" onclick="cambiarPestana('tab-tabla')">📋 Tabla Completa con Lupa</button>
                 </div>
 
@@ -127,7 +118,6 @@
         </div>
     </div>
 
-    <!-- Código JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
