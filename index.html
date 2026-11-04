@@ -3,177 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Runge-Kutta 4 - Grupo 4</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Math.js & Chart.js -->
+    <title>Método de Runge-Kutta 4° Orden - Grupo 4</title>
+    
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de Cálculo y Gráficas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            900: '#312e81',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-    </style>
+    
+    <!-- Hoja de Estilos Personalizada -->
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen py-6 px-4 md:py-10 md:px-8">
+<body>
 
-    <!-- Encabezado Principal -->
-    <header class="max-w-4xl mx-auto text-center mb-6 md:mb-10">
-        <h1 class="text-2xl md:text-4xl font-extrabold text-sky-900 tracking-tight">
-            Método de Runge-Kutta de cuarto orden (RK4)
-        </h1>
-        <p class="text-slate-500 font-medium mt-2 text-sm md:text-lg">
-            Grupo 4 - Ecuaciones Diferenciales
-        </p>
-    </header>
+    <div class="wrapper">
+        <!-- Encabezado Principal -->
+        <header>
+            <span class="brand-badge">Ecuaciones Diferenciales • Grupo 4</span>
+            <h1>Método de Runge-Kutta 4° Orden</h1>
+            <p>Calculadora interactiva de aproximación numérica y análisis de error</p>
+        </header>
 
-    <main class="max-w-4xl mx-auto space-y-6">
-        <!-- Formulario de Entrada -->
-        <section class="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-slate-200 transition-all hover:shadow-md">
-            
-            <!-- Alerta de Error -->
-            <div id="mensajeError" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium"></div>
+        <main>
+            <!-- Formulario de Entrada -->
+            <section class="app-card">
+                <div id="mensajeError" class="alerta-error hidden"></div>
 
-            <div class="space-y-4">
-                <div>
-                    <label for="eq" class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Ecuación diferencial <span class="font-mono text-brand-600">dy/dx = f(x,y)</span>:
+                <div class="input-group">
+                    <label for="eq">
+                        Ecuación diferencial <span class="code-label">dy/dx = f(x,y)</span>:
                     </label>
-                    <input type="text" id="eq" placeholder="Ej: y - x^2 + 1"
-                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all font-mono text-sm">
+                    <input type="text" id="eq" class="font-mono" placeholder="Ej: y - x^2 + 1">
                 </div>
 
-                <div>
-                    <label for="eqExacta" class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Solución exacta analítica <span class="font-mono text-sky-600">y(x)</span> <span class="text-slate-400 font-normal">(Opcional)</span>:
+                <div class="input-group">
+                    <label for="eqExacta">
+                        Solución exacta analítica <span class="code-label exact">y(x)</span> <span class="text-muted">(Opcional)</span>:
                     </label>
-                    <input type="text" id="eqExacta" placeholder="Ej: (x+1)^2 - 0.5*exp(x)"
-                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all font-mono text-sm">
+                    <input type="text" id="eqExacta" class="font-mono" placeholder="Ej: (x+1)^2 - 0.5*exp(x)">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="x0" class="block text-sm font-semibold text-slate-700 mb-1.5">x inicial (x₀)</label>
-                        <input type="number" id="x0" placeholder="Ej: 0" step="any"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                <div class="form-grid-2">
+                    <div class="input-group">
+                        <label for="x0">x inicial (x₀)</label>
+                        <input type="number" id="x0" placeholder="Ej: 0" step="any">
                     </div>
-                    <div>
-                        <label for="y0" class="block text-sm font-semibold text-slate-700 mb-1.5">y inicial (y₀)</label>
-                        <input type="number" id="y0" placeholder="Ej: 0.5" step="any"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                    <div class="input-group">
+                        <label for="y0">y inicial (y₀)</label>
+                        <input type="number" id="y0" placeholder="Ej: 0.5" step="any">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="xf" class="block text-sm font-semibold text-slate-700 mb-1.5">x final (xf)</label>
-                        <input type="number" id="xf" placeholder="Ej: 2" step="any"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                <div class="form-grid-2">
+                    <div class="input-group">
+                        <label for="xf">x final (xf)</label>
+                        <input type="number" id="xf" placeholder="Ej: 2" step="any">
                     </div>
-                    <div>
-                        <label for="h" class="block text-sm font-semibold text-slate-700 mb-1.5">Tamaño de paso (h)</label>
-                        <input type="number" id="h" placeholder="Ej: 0.2" step="any"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                    <div class="input-group">
+                        <label for="h">Tamaño de paso (h)</label>
+                        <input type="number" id="h" placeholder="Ej: 0.2" step="any">
                     </div>
                 </div>
-            </div>
 
-            <button id="btnCalcular" onclick="iniciarCalculo()"
-                class="w-full mt-6 bg-brand-700 hover:bg-brand-800 active:scale-[0.99] text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm hover:shadow transition-all duration-200 disabled:bg-slate-400 disabled:cursor-not-allowed">
-                Ejecutar Cálculo
-            </button>
-        </section>
-
-        <!-- Panel de Resultados -->
-        <section id="panelResultados" class="hidden bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-slate-200">
-            <h2 class="text-lg md:text-xl font-bold text-slate-800 pb-3 border-b border-slate-100 mb-6">
-                Resultados del Análisis
-            </h2>
-
-            <!-- Tarjetas KPI adaptadas a Tablet (md:grid-cols-3) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center">
-                    <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Iteraciones Totales</span>
-                    <span id="kpiPasos" class="text-xl md:text-2xl font-extrabold text-brand-700">0</span>
-                </div>
-                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center overflow-hidden">
-                    <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Valor Final y(xf)</span>
-                    <span id="kpiYFinal" class="text-xl md:text-2xl font-extrabold text-brand-700 truncate block">0.000000</span>
-                </div>
-                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center">
-                    <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tamaño de Paso (h)</span>
-                    <span id="kpiH" class="text-xl md:text-2xl font-extrabold text-brand-700">0.00</span>
-                </div>
-            </div>
-
-            <!-- Navegación por Pestañas -->
-            <div class="flex border-b border-slate-200 mb-6 space-x-2">
-                <button id="btnTabGrafica" onclick="cambiarPestana('tab-grafica')"
-                    class="py-2.5 px-3 md:px-4 text-xs md:text-sm font-semibold text-brand-700 border-b-2 border-brand-700 focus:outline-none transition-colors">
-                    📊 Gráfica Comparativa
+                <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
+                    Ejecutar Cálculo
                 </button>
-                <button id="btnTabTabla" onclick="cambiarPestana('tab-tabla')"
-                    class="py-2.5 px-3 md:px-4 text-xs md:text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-brand-700 focus:outline-none transition-colors">
-                    📋 Tabla Completa con Lupa
-                </button>
-            </div>
+            </section>
 
-            <!-- Pestaña 1: Gráfica -->
-            <div id="tab-grafica" class="block">
-                <div id="eqBadgeContainer" class="flex flex-wrap gap-2 mb-4"></div>
-                <div class="relative h-72 md:h-96 w-full">
-                    <canvas id="grafica"></canvas>
+            <!-- Panel de Resultados -->
+            <section id="panelResultados" class="app-card hidden">
+                <h2>Resultados del Análisis</h2>
+
+                <!-- Tarjetas KPI -->
+                <div class="kpi-container">
+                    <div class="kpi-card">
+                        <span class="kpi-title">Iteraciones Totales</span>
+                        <span id="kpiPasos" class="kpi-value">0</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-title">Valor Final y(xf)</span>
+                        <span id="kpiYFinal" class="kpi-value">0.000000</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-title">Tamaño de Paso (h)</span>
+                        <span id="kpiH" class="kpi-value">0.00</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Pestaña 2: Tabla -->
-            <div id="tab-tabla" class="hidden">
-                <div class="overflow-x-auto border border-slate-200 rounded-xl">
-                    <table id="tablaResultados" class="w-full text-left text-xs md:text-sm border-collapse min-w-[600px]">
-                        <!-- Llenado dinámico -->
-                    </table>
+                <!-- Pestañas -->
+                <div class="tabs-nav">
+                    <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">📊 Gráfica Comparativa</button>
+                    <button id="btnTabTabla" class="tab-btn" onclick="cambiarPestana('tab-tabla')">📋 Tabla Completa con Lupa</button>
                 </div>
-            </div>
-        </section>
-    </main>
 
-    <!-- Modal para desglose de la iteración -->
-    <div id="modalSustitucion" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-5 md:p-8 relative max-h-[85vh] overflow-y-auto animate-fade-in">
-            <button onclick="cerrarModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
-            <h3 id="modalTitulo" class="text-lg md:text-xl font-bold text-brand-700 mb-1">Sustitución de datos</h3>
-            <p class="text-xs md:text-sm text-slate-500 mb-6">Reemplazo explícito de los valores numéricos en la fórmula para esta iteración.</p>
-            <div id="contenidoModal" class="space-y-4"></div>
+                <!-- Pestaña 1: Gráfica -->
+                <div id="tab-grafica">
+                    <div id="eqBadgeContainer" class="eq-badge-group"></div>
+                    <div class="chart-box">
+                        <canvas id="grafica"></canvas>
+                    </div>
+                </div>
+
+                <!-- Pestaña 2: Tabla -->
+                <div id="tab-tabla" class="hidden">
+                    <div class="table-wrap">
+                        <table id="tablaResultados"></table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Desglose Matemático -->
+    <div id="modalSustitucion" class="modal-overlay hidden">
+        <div class="modal-card">
+            <button class="btn-close" onclick="cerrarModal()">&times;</button>
+            <h3 id="modalTitulo">Sustitución de datos</h3>
+            <p class="modal-sub">Reemplazo explícito de los valores numéricos en la fórmula para esta iteración.</p>
+            <div id="contenidoModal"></div>
         </div>
     </div>
 
+    <!-- Código JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
