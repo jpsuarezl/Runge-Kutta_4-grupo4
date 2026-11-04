@@ -1,13 +1,13 @@
 let graficaRK4 = null;
 let detallesIteraciones = [];
 
-// Base de datos de fenómenos físicos predeterminados (variables t0 y tf)
+// Base de datos de fenómenos físicos predeterminados (variables x0 y xf)
 const presetsFisicos = {
     caida: {
         eq: "9.81 - 0.15*y",
-        t0: "0",
+        x0: "0",
         y0: "0",
-        tf: "10",
+        xf: "10",
         h: "0.2",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <circle cx="90" cy="30" r="12" fill="#ef4444"/>
@@ -18,9 +18,9 @@ const presetsFisicos = {
     },
     newton: {
         eq: "-0.15 * (y - 20)",
-        t0: "0",
+        x0: "0",
         y0: "90",
-        tf: "30",
+        xf: "30",
         h: "1",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <rect x="65" y="35" width="50" height="40" rx="4" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="2"/>
@@ -31,9 +31,9 @@ const presetsFisicos = {
     },
     poblacion: {
         eq: "0.08 * y * (1 - y / 1000)",
-        t0: "0",
+        x0: "0",
         y0: "50",
-        tf: "100",
+        xf: "100",
         h: "2",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <path d="M20 75 Q 70 70 90 40 T 160 15" stroke="#10b981" stroke-width="2.5" fill="none"/>
@@ -42,10 +42,10 @@ const presetsFisicos = {
         </svg>`
     },
     custom: {
-        eq: "y - t^2 + 1",
-        t0: "0",
+        eq: "y - x^2 + 1",
+        x0: "0",
         y0: "0.5",
-        tf: "2",
+        xf: "2",
         h: "0.2",
         svgHTML: `<div style="text-align:center; color:#64748b; font-size:0.8rem;">✏️ Caso Personalizado</div>`
     }
@@ -58,9 +58,9 @@ function cambiarFenomeno() {
     if (!data) return;
 
     document.getElementById('eq').value = data.eq;
-    document.getElementById('t0').value = data.t0;
+    document.getElementById('x0').value = data.x0;
     document.getElementById('y0').value = data.y0;
-    document.getElementById('tf').value = data.tf;
+    document.getElementById('xf').value = data.xf;
     document.getElementById('h').value = data.h;
 
     const preview = document.getElementById('panelFotoPreview');
@@ -152,10 +152,10 @@ function cambiarPestana(tabId) {
     }
 }
 
-// Formatear sustitución explícita en t e y
-function formatearSustitucion(eqStr, valT, valY) {
+// Formatear sustitución explícita en x e y
+function formatearSustitucion(eqStr, valX, valY) {
     return eqStr
-        .replace(/\bt\b/gi, `(${valT})`)
+        .replace(/\bx\b/gi, `(${valX})`)
         .replace(/\by\b/gi, `(${valY})`);
 }
 
@@ -185,29 +185,29 @@ function calcularRK4() {
     }
 
     const eqStr = document.getElementById('eq').value.trim();
-    const t0 = parseFloat(document.getElementById('t0').value);
+    const x0 = parseFloat(document.getElementById('x0').value);
     const y0 = parseFloat(document.getElementById('y0').value);
-    const tf = parseFloat(document.getElementById('tf').value);
+    const xf = parseFloat(document.getElementById('xf').value);
     const h = parseFloat(document.getElementById('h').value);
 
     if (!eqStr) return mostrarError("Ingrese la ecuación diferencial.");
-    if (isNaN(t0) || isNaN(y0) || isNaN(tf) || isNaN(h)) return mostrarError("Llene todos los valores numéricos.");
+    if (isNaN(x0) || isNaN(y0) || isNaN(xf) || isNaN(h)) return mostrarError("Llene todos los valores numéricos.");
     if (h <= 0) return mostrarError("El paso (h) debe ser mayor a 0.");
-    if (tf <= t0) return mostrarError("El tiempo final (tf) debe ser mayor al inicial (t₀).");
+    if (xf <= x0) return mostrarError("El valor x final (xf) debe ser mayor al inicial (x₀).");
 
     let f;
     try {
         f = math.compile(eqStr);
-        f.evaluate({ t: t0, y: y0 });
+        f.evaluate({ x: x0, y: y0 });
     } catch (error) {
         return mostrarError("Sintaxis de ecuación no válida. Use '*' para multiplicar (ej: 0.15*y).");
     }
 
-    let t = t0;
+    let x = x0;
     let y = y0;
     let iteracion = 0;
 
-    let arr_t = [t];
+    let arr_x = [x];
     let arr_y = [y];
     detallesIteraciones = [];
 
@@ -215,7 +215,7 @@ function calcularRK4() {
         <thead>
             <tr>
                 <th>i</th>
-                <th>t</th>
+                <th>x</th>
                 <th>k₁</th>
                 <th>k₂</th>
                 <th>k₃</th>
@@ -227,25 +227,25 @@ function calcularRK4() {
         <tbody>
             <tr>
                 <td>0</td>
-                <td>${t.toFixed(4)}</td>
+                <td>${x.toFixed(4)}</td>
                 <td>-</td><td>-</td><td>-</td><td>-</td>
                 <td style="font-weight:700; color:#4338ca;">${y.toFixed(6)}</td>
                 <td style="text-align:center;">-</td>
             </tr>
     `;
 
-    while (t < tf - (h * 0.001)) {
-        let t1 = t, y1 = y;
-        let k1 = f.evaluate({ t: t1, y: y1 });
+    while (x < xf - (h * 0.001)) {
+        let x1 = x, y1 = y;
+        let k1 = f.evaluate({ x: x1, y: y1 });
 
-        let t2 = t + h/2, y2 = y + (h/2)*k1;
-        let k2 = f.evaluate({ t: t2, y: y2 });
+        let x2 = x + h/2, y2 = y + (h/2)*k1;
+        let k2 = f.evaluate({ x: x2, y: y2 });
 
-        let t3 = t + h/2, y3 = y + (h/2)*k2;
-        let k3 = f.evaluate({ t: t3, y: y3 });
+        let x3 = x + h/2, y3 = y + (h/2)*k2;
+        let k3 = f.evaluate({ x: x3, y: y3 });
 
-        let t4 = t + h, y4 = y + h*k3;
-        let k4 = f.evaluate({ t: t4, y: y4 });
+        let x4 = x + h, y4 = y + h*k3;
+        let k4 = f.evaluate({ x: x4, y: y4 });
 
         let y_next = y + (h / 6) * (k1 + 2*k2 + 2*k3 + k4);
         iteracion++;
@@ -254,35 +254,35 @@ function calcularRK4() {
             iter: iteracion,
             htmlModal: `
                 <div style="background:#f8fafc; border-left:3px solid #4338ca; padding:0.75rem; margin-bottom:0.5rem; font-family:monospace; font-size:0.8rem; line-height:1.6;">
-                    <strong>k₁</strong> = f(${t1.toFixed(4)}, ${y1.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, t1.toFixed(4), y1.toFixed(6))}<br>
+                    <strong>k₁</strong> = f(${x1.toFixed(4)}, ${y1.toFixed(6)})<br>
+                    = ${formatearSustitucion(eqStr, x1.toFixed(4), y1.toFixed(6))}<br>
                     → <strong>k₁ = ${k1.toFixed(6)}</strong><br><br>
 
-                    <strong>k₂</strong> = f(${t2.toFixed(4)}, ${y2.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, t2.toFixed(4), y2.toFixed(6))}<br>
+                    <strong>k₂</strong> = f(${x2.toFixed(4)}, ${y2.toFixed(6)})<br>
+                    = ${formatearSustitucion(eqStr, x2.toFixed(4), y2.toFixed(6))}<br>
                     → <strong>k₂ = ${k2.toFixed(6)}</strong><br><br>
 
-                    <strong>k₃</strong> = f(${t3.toFixed(4)}, ${y3.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, t3.toFixed(4), y3.toFixed(6))}<br>
+                    <strong>k₃</strong> = f(${x3.toFixed(4)}, ${y3.toFixed(6)})<br>
+                    = ${formatearSustitucion(eqStr, x3.toFixed(4), y3.toFixed(6))}<br>
                     → <strong>k₃ = ${k3.toFixed(6)}</strong><br><br>
 
-                    <strong>k₄</strong> = f(${t4.toFixed(4)}, ${y4.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, t4.toFixed(4), y4.toFixed(6))}<br>
+                    <strong>k₄</strong> = f(${x4.toFixed(4)}, ${y4.toFixed(6)})<br>
+                    = ${formatearSustitucion(eqStr, x4.toFixed(4), y4.toFixed(6))}<br>
                     → <strong>k₄ = ${k4.toFixed(6)}</strong>
                 </div>
             `
         });
 
         y = y_next;
-        t = t + h;
+        x = x + h;
 
-        arr_t.push(t);
+        arr_x.push(x);
         arr_y.push(y);
 
         let idx = iteracion - 1;
         htmlTabla += `<tr>
             <td>${iteracion}</td>
-            <td>${t.toFixed(4)}</td>
+            <td>${x.toFixed(4)}</td>
             <td>${k1.toFixed(4)}</td>
             <td>${k2.toFixed(4)}</td>
             <td>${k3.toFixed(4)}</td>
@@ -301,10 +301,10 @@ function calcularRK4() {
     document.getElementById('kpiH').innerText = h;
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
 
-    dibujarGrafica(arr_t, arr_y, eqStr);
+    dibujarGrafica(arr_x, arr_y, eqStr);
 }
 
-function dibujarGrafica(tData, yData, eqStr) {
+function dibujarGrafica(xData, yData, eqStr) {
     if (typeof Chart === 'undefined') return;
 
     const ctx = document.getElementById('grafica').getContext('2d');
@@ -313,9 +313,9 @@ function dibujarGrafica(tData, yData, eqStr) {
     graficaRK4 = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: tData.map(v => v.toFixed(2)),
+            labels: xData.map(v => v.toFixed(2)),
             datasets: [{
-                label: `Estado y(t) — dy/dt = ${eqStr}`,
+                label: `Estado y(x) — dy/dx = ${eqStr}`,
                 data: yData,
                 borderColor: '#4338ca',
                 backgroundColor: 'rgba(67, 56, 202, 0.08)',
@@ -330,7 +330,7 @@ function dibujarGrafica(tData, yData, eqStr) {
             maintainAspectRatio: false,
             scales: {
                 x: { 
-                    title: { display: true, text: 'Tiempo (t)', font: { weight: 'bold' } },
+                    title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } },
                     grid: { color: '#f1f5f9' } 
                 },
                 y: { 
@@ -342,7 +342,8 @@ function dibujarGrafica(tData, yData, eqStr) {
     });
 }
 
-// Inicializar preset por defecto al cargar
+// Inicializar preset por defecto y ejecutar cálculo automático al cargar la página
 window.onload = function() {
     cambiarFenomeno();
+    iniciarCalculo();
 };
