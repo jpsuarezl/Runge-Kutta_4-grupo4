@@ -2,7 +2,7 @@ let graficaRK4 = null;
 let detallesIteraciones = [];
 let campoActivo = null;
 
-// Base de datos de fenómenos físicos predeterminados (variables x0 y xf)
+// Base de datos de fenómenos físicos predeterminados
 const presetsFisicos = {
     caida: {
         eq: "9.81 - 0.15*y",
@@ -57,6 +57,7 @@ function seleccionarCampo(inputElement) {
     document.querySelectorAll('.input-target').forEach(el => el.classList.remove('active-field'));
     campoActivo = inputElement;
     campoActivo.classList.add('active-field');
+    actualizarSombraCursor();
 }
 
 // Cargar preset seleccionado
@@ -81,9 +82,18 @@ function cambiarFenomeno() {
     }
 
     ocultarError();
+    actualizarSombraCursor();
 }
 
-// Mover cursor con las flechas de navegación
+// Muestra visualmente dónde está el cursor en el campo
+function actualizarSombraCursor() {
+    if (!campoActivo) campoActivo = document.getElementById('eq');
+    const input = campoActivo;
+    const pos = input.selectionStart != null ? input.selectionStart : input.value.length;
+    input.setSelectionRange(pos, pos);
+}
+
+// Mover cursor con las flechas ◀ y ▶
 function moverCursor(direccion) {
     if (!campoActivo) campoActivo = document.getElementById('eq');
 
@@ -109,13 +119,13 @@ function insertarTexto(texto) {
     
     let nuevaPos = pos + texto.length;
     if (texto.endsWith('()')) {
-        nuevaPos = pos + texto.length - 1; // Ubica el cursor dentro del paréntesis
+        nuevaPos = pos + texto.length - 1;
     }
 
     input.setSelectionRange(nuevaPos, nuevaPos);
 }
 
-// Borra el carácter ubicado justo antes del cursor
+// Borra el carácter exacto justo antes del cursor
 function borrarCaracter() {
     if (!campoActivo) campoActivo = document.getElementById('eq');
 
@@ -129,7 +139,7 @@ function borrarCaracter() {
     }
 }
 
-// Limpia completamente el campo activo
+// Limpia el campo activo
 function limpiarCampo() {
     if (!campoActivo) campoActivo = document.getElementById('eq');
     campoActivo.value = '';
@@ -357,6 +367,45 @@ function calcularRK4() {
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
 
     dibujarGrafica(arr_x, arr_y, eqStr);
+}
+
+// Dibuja la curva solución dy/dx = f(x,y)
+function dibujarGrafica(xData, yData, eqStr) {
+    if (typeof Chart === 'undefined') return;
+
+    const ctx = document.getElementById('grafica').getContext('2d');
+    if (graficaRK4) graficaRK4.destroy();
+
+    graficaRK4 = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: xData.map(v => v.toFixed(2)),
+            datasets: [{
+                label: `Estado y(x) — dy/dx = ${eqStr}`,
+                data: yData,
+                borderColor: '#4338ca',
+                backgroundColor: 'rgba(67, 56, 202, 0.08)',
+                borderWidth: 2.5,
+                pointRadius: 3,
+                fill: true,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } },
+                    grid: { color: '#f1f5f9' } 
+                },
+                y: { 
+                    title: { display: true, text: 'Estado (y)', font: { weight: 'bold' } },
+                    grid: { color: '#f1f5f9' } 
+                }
+            }
+        }
+    });
 }
 
 // Inicializar preset por defecto al cargar la página
