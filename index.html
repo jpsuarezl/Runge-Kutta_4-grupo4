@@ -98,35 +98,55 @@
                 </section>
             </main>
 
-            <!-- Columna Lateral: Fenómeno Físico -->
+            <!-- Columna Lateral: Fenómeno Físico y Carga de Foto -->
             <aside class="side-panel">
-                <span class="physics-badge">Termodinámica</span>
-                <h2>🌡️ Ley de Enfriamiento de Newton</h2>
-
-                <div class="physics-illustration">
-                    <svg width="180" height="110" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M50 45H120V80C120 88.2843 113.284 95 105 95H65C56.7157 95 50 88.2843 50 80V45Z" fill="#3b82f6" fill-opacity="0.15" stroke="#2563eb" stroke-width="2"/>
-                        <path d="M120 52H132C136.418 52 140 55.5817 140 60V68C140 72.4183 136.418 76 132 76H120" stroke="#2563eb" stroke-width="2"/>
-                        <rect x="54" y="50" width="62" height="6" rx="3" fill="#ef4444"/>
-                        <path d="M65 38C65 34 71 34 71 30" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M85 40C85 36 91 36 91 32" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M105 38C105 34 111 34 111 30" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-                        <text x="10" y="25" fill="#64748b" font-size="10" font-family="sans-serif" font-weight="bold">T_amb = 20°C</text>
-                        <text x="60" y="75" fill="#ef4444" font-size="10" font-family="sans-serif" font-weight="bold">90°C</text>
-                    </svg>
+                <div class="side-header">
+                    <label for="selectFenomeno" class="side-label-select">Seleccionar Caso:</label>
+                    <select id="selectFenomeno" class="select-preset" onchange="cambiarFenomeno()">
+                        <option value="newton">🌡️ Enfriamiento de Newton</option>
+                        <option value="caida">🪂 Caída Libre con Arrastre</option>
+                        <option value="poblacion">📈 Crecimiento Poblacional</option>
+                        <option value="custom">✏️ Personalizado / Tu Foto</option>
+                    </select>
                 </div>
 
-                <p class="physics-desc">
-                    Modela la transferencia de calor de un fluido caliente ($90^\circ\text{C}$) expuesto a una temperatura ambiente constante ($20^\circ\text{C}$).
+                <span id="panelBadge" class="physics-badge">Termodinámica</span>
+                <h2 id="panelTitulo">Ley de Enfriamiento de Newton</h2>
+
+                <!-- Contenedor Pequeño para Foto o Gráfico Vectorial -->
+                <div class="physics-illustration" id="panelFotoContainer">
+                    <img id="panelFotoPreview" class="hidden-img" alt="Foto del ejercicio cargado">
+                    <div id="panelSvgDefault">
+                        <svg width="180" height="110" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M50 45H120V80C120 88.2843 113.284 95 105 95H65C56.7157 95 50 88.2843 50 80V45Z" fill="#3b82f6" fill-opacity="0.15" stroke="#2563eb" stroke-width="2"/>
+                            <path d="M120 52H132C136.418 52 140 55.5817 140 60V68C140 72.4183 136.418 76 132 76H120" stroke="#2563eb" stroke-width="2"/>
+                            <rect x="54" y="50" width="62" height="6" rx="3" fill="#ef4444"/>
+                            <path d="M65 38C65 34 71 34 71 30" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M85 40C85 36 91 36 91 32" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M105 38C105 34 111 34 111 30" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+                            <text x="10" y="25" fill="#64748b" font-size="10" font-family="sans-serif" font-weight="bold">T_amb = 20°C</text>
+                            <text x="60" y="75" fill="#ef4444" font-size="10" font-family="sans-serif" font-weight="bold">90°C</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Botón para subir foto del ejercicio -->
+                <div class="upload-btn-wrapper">
+                    <label for="inputFoto" class="btn-subir-foto">📷 Subir foto del ejercicio</label>
+                    <input type="file" id="inputFoto" accept="image/*" onchange="cargarFotoCaso(event)">
+                </div>
+
+                <p id="panelDesc" class="physics-desc">
+                    Modela la transferencia de calor de un fluido caliente (90°C) expuesto a temperatura ambiente (20°C).
                 </p>
 
-                <div class="formula-box">
+                <div id="panelFormula" class="formula-box">
                     <strong>EDO:</strong> dT/dt = -k(T - T_amb)<br>
                     <strong>Input:</strong> <span style="color:#2563eb;">-0.15 * (y - 20)</span>
                 </div>
 
                 <button class="btn-preset" onclick="cargarFenomenoFisico()">
-                    ⚡ Cargar y Simular Este Fenómeno
+                    🚀 Cargar y Simular en el Solver
                 </button>
             </aside>
 
