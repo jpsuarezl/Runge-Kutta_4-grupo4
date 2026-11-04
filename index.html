@@ -3,121 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Método de Runge-Kutta 4° Orden - Grupo 4</title>
-    
-    <!-- Tipografía y Librerías Externas -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <title>Calculadora RK4 - Ecuaciones Diferenciales</title>
+
+    <!-- Librerías Externas (Math.js y Chart.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <link rel="stylesheet" href="styles.css">
+
+    <!-- ESTILOS CSS (Minimalismo Funcional + Layout Lateral) -->
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent-orange: #f97316;
+            --radius: 10px;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 1.5rem 1rem;
+            min-height: 100vh;
+        }
+
+        .wrapper {
+            max-width: 1160px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* LAYOUT PRINCIPAL CON PANEL LATERAL */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        @media (min-width: 900px) {
+            .layout-grid {
+                grid-template-columns: 1fr 340px;
+            }
+        }
+
+        .app-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.25rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .form-grid { grid-template-columns: repeat(2, 1fr); }
+            body { padding: 2.5rem 1.5rem; }
+            .app-card { padding: 1.75rem; }
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.35rem;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 0.7rem 0.85rem;
+            background-color: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input.font-mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .btn-action {
+            width: 100%;
+            background-color: var(--primary);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-action:hover { background-color: var(--primary-hover); }
+        .btn-action:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        /* ESTILOS DEL PANEL LATERAL DE FENÓMENO FÍSICO */
+        .side-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+
+        .side-panel h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .physics-badge {
+            display: inline-block;
+            background: #fff7ed;
+            color: var(--accent-orange);
+            font-size: 0.725rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ffedd5;
+            margin-bottom: 0.75rem;
+        }
+
+        .physics-illustration {
+            width: 100%;
+            height: 140px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.85rem;
+            padding: 0.5rem;
+        }
+
+        .physics-desc {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin-bottom: 0.85rem;
+        }
+
+        .formula-box {
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 0.6rem 0.75rem;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 0.8rem;
+            color: #1e293b;
+            margin-bottom: 0.85rem;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .btn-preset {
+            width: 100%;
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.825rem;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .btn-preset:hover {
+            background-color: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        /* KPI Y RESULTADOS */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .kpi-container { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.85rem;
+            text-align: center;
+        }
+
+        .kpi-title {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.2rem;
+        }
+
+        .kpi-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+
+        .tabs-nav {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.25rem;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            padding: 0.65rem 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.725rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 0.65rem 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+
+        tr:hover td { background-color: #f8fafc; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            max-width: 560px;
+            width: 100%;
+            padding: 1.5rem;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: none; border: none;
+        }
+
+        .alerta-error {
+            background-color: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
 
     <div class="wrapper">
         <!-- Encabezado -->
         <header>
-            <span class="brand-badge">Ecuaciones Diferenciales • Grupo 4</span>
-            <h1>Método de Runge-Kutta 4° Orden</h1>
-            <p>Calculadora interactiva de aproximación numérica</p>
+            <h1>Método de Runge-Kutta (RK4)</h1>
+            <p>Grupo 4 • Análisis de Ecuaciones Diferenciales</p>
         </header>
 
-        <main>
-            <!-- Formulario de Entrada -->
-            <section class="app-card">
-                <div id="mensajeError" class="alerta-error hidden"></div>
+        <!-- Layout Grid: Calculadora + Panel Lateral -->
+        <div class="layout-grid">
+            
+            <!-- Columna Principal -->
+            <main>
+                <!-- Entradas de datos -->
+                <section class="app-card">
+                    <div id="mensajeError" class="alerta-error hidden"></div>
 
-                <div class="input-group">
-                    <label for="eq">
-                        Ecuación diferencial <span class="code-label">dy/dx = f(x,y)</span>:
-                    </label>
-                    <input type="text" id="eq" class="font-mono" placeholder="Ej: y - x^2 + 1">
-                </div>
-
-                <div class="form-grid-2">
                     <div class="input-group">
-                        <label for="x0">x inicial (x₀)</label>
-                        <input type="number" id="x0" placeholder="Ej: 0" step="any">
+                        <label for="eq">Ecuación diferencial: dy/dx = f(x,y)</label>
+                        <input type="text" id="eq" class="font-mono" placeholder="Ej: y - x^2 + 1">
                     </div>
-                    <div class="input-group">
-                        <label for="y0">y inicial (y₀)</label>
-                        <input type="number" id="y0" placeholder="Ej: 0.5" step="any">
+
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="x0">Valor inicial x₀</label>
+                            <input type="number" id="x0" placeholder="Ej: 0" step="any">
+                        </div>
+                        <div class="input-group">
+                            <label for="y0">Valor inicial y₀</label>
+                            <input type="number" id="y0" placeholder="Ej: 0.5" step="any">
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-grid-2">
-                    <div class="input-group">
-                        <label for="xf">x final (xf)</label>
-                        <input type="number" id="xf" placeholder="Ej: 2" step="any">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="xf">Límite x final (xf)</label>
+                            <input type="number" id="xf" placeholder="Ej: 2" step="any">
+                        </div>
+                        <div class="input-group">
+                            <label for="h">Tamaño de paso (h)</label>
+                            <input type="number" id="h" placeholder="Ej: 0.2" step="any">
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label for="h">Tamaño de paso (h)</label>
-                        <input type="number" id="h" placeholder="Ej: 0.2" step="any">
-                    </div>
-                </div>
 
-                <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
-                    Ejecutar Cálculo
-                </button>
-            </section>
+                    <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
+                        Ejecutar Cálculo
+                    </button>
+                </section>
 
-            <!-- Panel de Resultados -->
-            <section id="panelResultados" class="app-card hidden">
-                <h2>Resultados del Análisis</h2>
-
-                <!-- Tarjetas KPI -->
-                <div class="kpi-container">
-                    <div class="kpi-card">
-                        <span class="kpi-title">Iteraciones Totales</span>
-                        <span id="kpiPasos" class="kpi-value">0</span>
-                    </div>
-                    <div class="kpi-card">
-                        <span class="kpi-title">Valor Final y(xf)</span>
-                        <span id="kpiYFinal" class="kpi-value">0.000000</span>
-                    </div>
-                    <div class="kpi-card">
-                        <span class="kpi-title">Tamaño de Paso (h)</span>
-                        <span id="kpiH" class="kpi-value">0.00</span>
-                    </div>
-                </div>
-
-                <!-- Navegación de Pestañas -->
-                <div class="tabs-nav">
-                    <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">📊 Gráfica de la Solución</button>
-                    <button id="btnTabTabla" class="tab-btn" onclick="cambiarPestana('tab-tabla')">📋 Tabla Completa con Lupa</button>
-                </div>
-
-                <!-- Pestaña 1: Gráfica -->
-                <div id="tab-grafica">
-                    <div id="eqBadgeContainer" class="eq-badge-group"></div>
-                    <div class="chart-box">
-                        <canvas id="grafica"></canvas>
-                    </div>
-                </div>
-
-                <!-- Pestaña 2: Tabla -->
-                <div id="tab-tabla" class="hidden">
-                    <div class="table-wrap">
-                        <table id="tablaResultados"></table>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- Modal de Desglose Matemático -->
-    <div id="modalSustitucion" class="modal-overlay hidden">
-        <div class="modal-card">
-            <button class="btn-close" onclick="cerrarModal()">&times;</button>
-            <h3 id="modalTitulo">Sustitución de datos</h3>
-            <p class="modal-sub">Reemplazo explícito de los valores numéricos en la fórmula para esta iteración.</p>
-            <div id="contenidoModal"></div>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-</body>
-</html>
+                <!-- Resultados -->
+                <section id="panelResultados" class="app-card hidden">
+                    <div class="kpi-container">
+                        <div class="kpi-card">
+                            <span class="kpi-title">Iteraciones</span>
+                            <span id="kpiPasos" class="kpi-value">0</span>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-title">Resultado Final y(xf)</span>
+                            <span id="kpi
