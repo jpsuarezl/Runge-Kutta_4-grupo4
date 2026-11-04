@@ -51,12 +51,12 @@
 
                     <!-- Ecuación Diferencial -->
                     <div class="input-group">
-                        <label for="eq">Ecuación Diferencial dy/dt = f(t,y):</label>
+                        <label for="eq">Ecuación Diferencial dy/dx = f(x,y):</label>
                         <input type="text" id="eq" class="font-mono" placeholder="Ej: 9.81 - 0.15*y">
                         
                         <!-- Botones de ayuda sintáctica rápida -->
                         <div class="quick-helpers">
-                            <button type="button" onclick="insertarTextoEq('t')">t</button>
+                            <button type="button" onclick="insertarTextoEq('x')">x</button>
                             <button type="button" onclick="insertarTextoEq('y')">y</button>
                             <button type="button" onclick="insertarTextoEq('^')">^</button>
                             <button type="button" onclick="insertarTextoEq('exp()')">exp()</button>
@@ -78,22 +78,22 @@
                         <input type="file" id="inputFoto" accept="image/*" onchange="cargarFotoCaso(event)">
                     </div>
 
-                    <!-- Condiciones Iniciales y Parámetros (t0 y tf) -->
+                    <!-- Condiciones Iniciales y Parámetros (x0 y xf) -->
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="t0">Tiempo inicial (t₀):</label>
-                            <input type="number" id="t0" placeholder="0" step="any">
+                            <label for="x0">x inicial (x₀):</label>
+                            <input type="number" id="x0" placeholder="0" step="any">
                         </div>
                         <div class="input-group">
-                            <label for="y0">Estado inicial (y₀):</label>
+                            <label for="y0">y inicial (y₀):</label>
                             <input type="number" id="y0" placeholder="0" step="any">
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="tf">Tiempo final (tf):</label>
-                            <input type="number" id="tf" placeholder="10" step="any">
+                            <label for="xf">x final (xf):</label>
+                            <input type="number" id="xf" placeholder="10" step="any">
                         </div>
                         <div class="input-group">
                             <label for="h">Tamaño de paso (h):</label>
@@ -116,7 +116,7 @@
                         <span id="kpiPasos" class="kpi-value">0</span>
                     </div>
                     <div class="kpi-card">
-                        <span class="kpi-title">VALOR FINAL y(tf)</span>
+                        <span class="kpi-title">VALOR FINAL y(xf)</span>
                         <span id="kpiYFinal" class="kpi-value">0.0000</span>
                     </div>
                     <div class="kpi-card">
@@ -139,7 +139,7 @@
 
                     <!-- Pestaña 1: Gráfica -->
                     <div id="tab-grafica">
-                        <h3 id="graficaTitulo" class="chart-section-title">Gráfica: Solución del Estado y(t) vs Tiempo</h3>
+                        <h3 id="graficaTitulo" class="chart-section-title">Gráfica: Solución del Estado y(x) vs x</h3>
                         <div style="position: relative; height: 350px; width: 100%;">
                             <canvas id="grafica"></canvas>
                         </div>
