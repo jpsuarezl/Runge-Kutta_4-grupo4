@@ -265,7 +265,7 @@ function calcularRK4() {
         let x2 = x + h/2, y2 = y + (h/2)*k1;
         let k2 = f.evaluate({ x: x2, y: y2 });
 
-        let x3 = x + h/2, y3 = y + (h/2)*k2; // CORREGIDO: Usar k2 para calcular y3
+        let x3 = x + h/2, y3 = y + (h/2)*k2;
         let k3 = f.evaluate({ x: x3, y: y3 });
 
         let x4 = x + h, y4 = y + h*k3;
