@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Web RK4 — Métodos Numéricos</title>
 
-    <!-- Librerías Externas (Math.js y Chart.js) -->
+    <!-- Librerías Externas (Math.js, Chart.js y Tesseract OCR) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
     <!-- Hoja de Estilos Externa -->
     <link rel="stylesheet" href="styles.css">
@@ -62,10 +63,11 @@
                         <div id="panelSvgDefault"></div>
                     </div>
 
-                    <!-- Botón para subir foto -->
+                    <!-- Botón para subir foto e Indicador OCR -->
                     <div class="upload-btn-wrapper">
                         <label for="inputFoto" class="btn-subir-foto">📷 Adjuntar Foto del Ejercicio</label>
                         <input type="file" id="inputFoto" accept="image/*" onchange="cargarFotoCaso(event)">
+                        <div id="statusOCR" class="status-ocr hidden">🔍 Escaneando imagen en busca de datos...</div>
                     </div>
 
                     <!-- Condiciones Iniciales y Parámetros -->
