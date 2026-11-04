@@ -54,15 +54,43 @@
                         <label for="eq">Ecuación Diferencial dy/dx = f(x,y):</label>
                         <input type="text" id="eq" class="font-mono" placeholder="Ej: y - x^2 + 1">
                         
-                        <!-- Botones de ayuda sintáctica rápida -->
-                        <div class="quick-helpers">
-                            <button type="button" onclick="insertarTextoEq('x')">x</button>
-                            <button type="button" onclick="insertarTextoEq('y')">y</button>
+                        <!-- TECLADO VIRTUAL INTEGRADO -->
+                        <div class="virtual-keypad">
+                            <!-- Fila 1: Funciones Matemáticas -->
+                            <button type="button" onclick="insertarTextoEq('sin()')">sin</button>
+                            <button type="button" onclick="insertarTextoEq('cos()')">cos</button>
+                            <button type="button" onclick="insertarTextoEq('exp()')">exp</button>
+                            <button type="button" onclick="insertarTextoEq('sqrt()')">sqrt</button>
                             <button type="button" onclick="insertarTextoEq('^')">^</button>
-                            <button type="button" onclick="insertarTextoEq('exp()')">exp()</button>
-                            <button type="button" onclick="insertarTextoEq('sin()')">sin()</button>
-                            <button type="button" onclick="insertarTextoEq('cos()')">cos()</button>
-                            <button type="button" onclick="insertarTextoEq('sqrt()')">sqrt()</button>
+                            <button type="button" onclick="insertarTextoEq('(')">(</button>
+                            <button type="button" onclick="insertarTextoEq(')')">)</button>
+
+                            <!-- Fila 2: Números 7-9 y Controles -->
+                            <button type="button" onclick="insertarTextoEq('7')">7</button>
+                            <button type="button" onclick="insertarTextoEq('8')">8</button>
+                            <button type="button" onclick="insertarTextoEq('9')">9</button>
+                            <button type="button" onclick="insertarTextoEq('/')">/</button>
+                            <button type="button" onclick="insertarTextoEq('*')">*</button>
+                            <button type="button" onclick="borrarUltimoCaracterEq()" class="btn-key-action" title="Borrar uno">⌫</button>
+                            <button type="button" onclick="limpiarEq()" class="btn-key-clear" title="Limpiar todo">C</button>
+
+                            <!-- Fila 3: Números 4-6 y Variables -->
+                            <button type="button" onclick="insertarTextoEq('4')">4</button>
+                            <button type="button" onclick="insertarTextoEq('5')">5</button>
+                            <button type="button" onclick="insertarTextoEq('6')">6</button>
+                            <button type="button" onclick="insertarTextoEq('-')">-</button>
+                            <button type="button" onclick="insertarTextoEq('+')">+</button>
+                            <button type="button" onclick="insertarTextoEq('x')" class="btn-key-var">x</button>
+                            <button type="button" onclick="insertarTextoEq('y')" class="btn-key-var">y</button>
+
+                            <!-- Fila 4: Números 1-3 y Punto -->
+                            <button type="button" onclick="insertarTextoEq('1')">1</button>
+                            <button type="button" onclick="insertarTextoEq('2')">2</button>
+                            <button type="button" onclick="insertarTextoEq('3')">3</button>
+                            <button type="button" onclick="insertarTextoEq('0')">0</button>
+                            <button type="button" onclick="insertarTextoEq('.')">.</button>
+                            <button type="button" onclick="insertarTextoEq('0.15')">0.15</button>
+                            <button type="button" onclick="insertarTextoEq('9.81')">9.81</button>
                         </div>
                     </div>
 
