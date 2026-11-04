@@ -1,15 +1,20 @@
 let graficaRK4 = null;
 let detallesIteraciones = [];
-let campoActivo = null;
+let campoActivoId = 'eq';
 
-// 1. Base de datos de fenómenos físicos predeterminados
+// Estado de los datos de cada campo
+const estadoCampos = {
+    eq: { texto: "9.81 - 0.15*y", pos: 13 },
+    x0: { texto: "0", pos: 1 },
+    y0: { texto: "0", pos: 1 },
+    xf: { texto: "10", pos: 2 },
+    h:  { texto: "0.2", pos: 3 }
+};
+
+// Base de datos de fenómenos predeterminados
 const presetsFisicos = {
     caida: {
-        eq: "9.81 - 0.15*y",
-        x0: "0",
-        y0: "0",
-        xf: "10",
-        h: "0.2",
+        eq: "9.81 - 0.15*y", x0: "0", y0: "0", xf: "10", h: "0.2",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <circle cx="90" cy="30" r="12" fill="#ef4444"/>
             <path d="M90 42V70M90 70L85 62M90 70L95 62" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
@@ -18,11 +23,7 @@ const presetsFisicos = {
         </svg>`
     },
     newton: {
-        eq: "-0.15 * (y - 20)",
-        x0: "0",
-        y0: "90",
-        xf: "30",
-        h: "1",
+        eq: "-0.15 * (y - 20)", x0: "0", y0: "90", xf: "30", h: "1",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <rect x="65" y="35" width="50" height="40" rx="4" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="2"/>
             <path d="M75 25C75 20 80 20 80 15" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
@@ -31,11 +32,7 @@ const presetsFisicos = {
         </svg>`
     },
     poblacion: {
-        eq: "0.08 * y * (1 - y / 1000)",
-        x0: "0",
-        y0: "50",
-        xf: "100",
-        h: "2",
+        eq: "0.08 * y * (1 - y / 1000)", x0: "0", y0: "50", xf: "100", h: "2",
         svgHTML: `<svg width="180" height="90" viewBox="0 0 180 90" fill="none">
             <path d="M20 75 Q 70 70 90 40 T 160 15" stroke="#10b981" stroke-width="2.5" fill="none"/>
             <line x1="20" y1="15" x2="160" y2="15" stroke="#94a3b8" stroke-dasharray="3"/>
@@ -43,16 +40,125 @@ const presetsFisicos = {
         </svg>`
     },
     custom: {
-        eq: "",
-        x0: "",
-        y0: "",
-        xf: "",
-        h: "",
+        eq: "", x0: "", y0: "", xf: "", h: "",
         svgHTML: `<div style="text-align:center; color:#64748b; font-size:0.8rem;">✏️ Caso Personalizado</div>`
     }
 };
 
-// 2. Definición global de dibujarGrafica (para evitar errores de inicialización)
+// Renderiza el contenido de los campos mostrando el cursor parpadeante |
+function renderizarPantallas() {
+    Object.keys(estadoCampos).forEach(id => {
+        const display = document.getElementById(`display_${id}`);
+        const wrapper = display.parentElement;
+        const c = estadoCampos[id];
+
+        if (id === campoActivoId) {
+            wrapper.classList.add('active-field');
+            const antes = c.texto.substring(0, c.pos);
+            const despues = c.texto.substring(c.pos);
+            display.innerHTML = `${escapeHTML(antes)}<span class="blinking-cursor"></span>${escapeHTML(despues)}`;
+        } else {
+            wrapper.classList.remove('active-field');
+            display.innerHTML = escapeHTML(c.texto);
+        }
+    });
+}
+
+function escapeHTML(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function seleccionarCampo(id) {
+    campoActivoId = id;
+    renderizarPantallas();
+}
+
+function cambiarFenomeno() {
+    const key = document.getElementById('selectFenomeno').value;
+    const data = presetsFisicos[key];
+    if (!data) return;
+
+    ['eq', 'x0', 'y0', 'xf', 'h'].forEach(field => {
+        estadoCampos[field].texto = data[field];
+        estadoCampos[field].pos = data[field].length;
+    });
+
+    const preview = document.getElementById('panelFotoPreview');
+    const svgContainer = document.getElementById('panelSvgDefault');
+
+    if (preview.dataset.custom !== "true") {
+        preview.classList.add('hidden-img');
+        svgContainer.innerHTML = data.svgHTML;
+        svgContainer.style.display = 'block';
+    }
+
+    ocultarError();
+    renderizarPantallas();
+}
+
+// Mueve el cursor a la izquierda (-1) o derecha (+1)
+function moverCursor(dir) {
+    const c = estadoCampos[campoActivoId];
+    c.pos = Math.max(0, Math.min(c.texto.length, c.pos + dir));
+    renderizarPantallas();
+}
+
+// Inserta texto respetando la posición actual del cursor
+function insertarTexto(t) {
+    const c = estadoCampos[campoActivoId];
+    const antes = c.texto.substring(0, c.pos);
+    const despues = c.texto.substring(c.pos);
+
+    c.texto = antes + t + despues;
+    
+    if (t.endsWith('()')) {
+        c.pos = c.pos + t.length - 1;
+    } else {
+        c.pos = c.pos + t.length;
+    }
+    renderizarPantallas();
+}
+
+// Borra el carácter exacto a la izquierda del cursor
+function borrarCaracter() {
+    const c = estadoCampos[campoActivoId];
+    if (c.pos > 0) {
+        const antes = c.texto.substring(0, c.pos - 1);
+        const despues = c.texto.substring(c.pos);
+        c.texto = antes + despues;
+        c.pos--;
+        renderizarPantallas();
+    }
+}
+
+function limpiarCampo() {
+    const c = estadoCampos[campoActivoId];
+    c.texto = "";
+    c.pos = 0;
+    renderizarPantallas();
+}
+
+function cargarFotoCaso(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('panelFotoPreview');
+        const svgContainer = document.getElementById('panelSvgDefault');
+
+        preview.src = e.target.result;
+        preview.classList.remove('hidden-img');
+        preview.dataset.custom = "true";
+        svgContainer.style.display = 'none';
+
+        document.getElementById('selectFenomeno').value = 'custom';
+        cambiarFenomeno();
+    };
+    reader.readAsDataURL(file);
+}
+
+// Dibujar Gráfica
 function dibujarGrafica(xData, yData, eqStr) {
     if (typeof Chart === 'undefined') return;
 
@@ -81,141 +187,16 @@ function dibujarGrafica(xData, yData, eqStr) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { 
-                    title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } },
-                    grid: { color: '#f1f5f9' } 
-                },
-                y: { 
-                    title: { display: true, text: 'Estado (y)', font: { weight: 'bold' } },
-                    grid: { color: '#f1f5f9' } 
-                }
+                x: { title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } }, grid: { color: '#f1f5f9' } },
+                y: { title: { display: true, text: 'Estado (y)', font: { weight: 'bold' } }, grid: { color: '#f1f5f9' } }
             }
         }
     });
 }
 
-// 3. Selección y foco de campo
-function seleccionarCampo(inputElement) {
-    document.querySelectorAll('.input-target').forEach(el => el.classList.remove('active-field'));
-    campoActivo = inputElement;
-    campoActivo.classList.add('active-field');
-}
-
-// 4. Cargar preset seleccionado
-function cambiarFenomeno() {
-    const key = document.getElementById('selectFenomeno').value;
-    const data = presetsFisicos[key];
-    if (!data) return;
-
-    document.getElementById('eq').value = data.eq;
-    document.getElementById('x0').value = data.x0;
-    document.getElementById('y0').value = data.y0;
-    document.getElementById('xf').value = data.xf;
-    document.getElementById('h').value = data.h;
-
-    const preview = document.getElementById('panelFotoPreview');
-    const svgContainer = document.getElementById('panelSvgDefault');
-
-    if (preview.dataset.custom !== "true") {
-        preview.classList.add('hidden-img');
-        svgContainer.innerHTML = data.svgHTML;
-        svgContainer.style.display = 'block';
-    }
-
-    ocultarError();
-}
-
-// 5. Mover cursor con flechas ◀ y ▶
-function moverCursor(direccion) {
-    if (!campoActivo) campoActivo = document.getElementById('eq');
-    const input = campoActivo;
-
-    let pos = input.dataset.cursorPos ? parseInt(input.dataset.cursorPos) : input.value.length;
-    let nuevaPos = pos + direccion;
-
-    if (nuevaPos < 0) nuevaPos = 0;
-    if (nuevaPos > input.value.length) nuevaPos = input.value.length;
-
-    input.dataset.cursorPos = nuevaPos;
-    resaltarPosicionCursor(input, nuevaPos);
-}
-
-// 6. Inserción de texto en la posición activa
-function insertarTexto(texto) {
-    if (!campoActivo) campoActivo = document.getElementById('eq');
-
-    const input = campoActivo;
-    const val = input.value;
-    let pos = input.dataset.cursorPos ? parseInt(input.dataset.cursorPos) : val.length;
-
-    input.value = val.substring(0, pos) + texto + val.substring(pos);
-    
-    let nuevaPos = pos + texto.length;
-    if (texto.endsWith('()')) {
-        nuevaPos = pos + texto.length - 1;
-    }
-
-    input.dataset.cursorPos = nuevaPos;
-    resaltarPosicionCursor(input, nuevaPos);
-}
-
-// 7. Borrado carácter por carácter
-function borrarCaracter() {
-    if (!campoActivo) campoActivo = document.getElementById('eq');
-
-    const input = campoActivo;
-    const val = input.value;
-    let pos = input.dataset.cursorPos ? parseInt(input.dataset.cursorPos) : val.length;
-
-    if (pos > 0) {
-        input.value = val.substring(0, pos - 1) + val.substring(pos);
-        input.dataset.cursorPos = pos - 1;
-        resaltarPosicionCursor(input, pos - 1);
-    }
-}
-
-function resaltarPosicionCursor(input, pos) {
-    try {
-        input.focus();
-        input.setSelectionRange(pos, pos);
-    } catch (e) {}
-}
-
-// 8. Limpiar campo
-function limpiarCampo() {
-    if (!campoActivo) campoActivo = document.getElementById('eq');
-    campoActivo.value = '';
-    campoActivo.dataset.cursorPos = 0;
-}
-
-// 9. Cargar Foto
-function cargarFotoCaso(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById('panelFotoPreview');
-        const svgContainer = document.getElementById('panelSvgDefault');
-
-        preview.src = e.target.result;
-        preview.classList.remove('hidden-img');
-        preview.dataset.custom = "true";
-        svgContainer.style.display = 'none';
-
-        document.getElementById('selectFenomeno').value = 'custom';
-    };
-    reader.readAsDataURL(file);
-}
-
-// 10. Modales
-function abrirModalEquipo() {
-    document.getElementById('modalEquipo').classList.remove('hidden');
-}
-
-function cerrarModalEquipo() {
-    document.getElementById('modalEquipo').classList.add('hidden');
-}
+// Modales
+function abrirModalEquipo() { document.getElementById('modalEquipo').classList.remove('hidden'); }
+function cerrarModalEquipo() { document.getElementById('modalEquipo').classList.add('hidden'); }
 
 function abrirModal(index) {
     const detalle = detallesIteraciones[index];
@@ -226,9 +207,7 @@ function abrirModal(index) {
     document.getElementById('modalSustitucion').classList.remove('hidden');
 }
 
-function cerrarModal() {
-    document.getElementById('modalSustitucion').classList.add('hidden');
-}
+function cerrarModal() { document.getElementById('modalSustitucion').classList.add('hidden'); }
 
 window.onclick = function(event) {
     if (event.target == document.getElementById('modalSustitucion')) cerrarModal();
@@ -241,9 +220,7 @@ function mostrarError(msj) {
     div.classList.remove('hidden');
 }
 
-function ocultarError() {
-    document.getElementById('mensajeError').classList.add('hidden');
-}
+function ocultarError() { document.getElementById('mensajeError').classList.add('hidden'); }
 
 function cambiarPestana(tabId) {
     document.getElementById('tab-grafica').classList.add('hidden');
@@ -261,9 +238,7 @@ function cambiarPestana(tabId) {
 }
 
 function formatearSustitucion(eqStr, valX, valY) {
-    return eqStr
-        .replace(/\bx\b/gi, `(${valX})`)
-        .replace(/\by\b/gi, `(${valY})`);
+    return eqStr.replace(/\bx\b/gi, `(${valX})`).replace(/\by\b/gi, `(${valY})`);
 }
 
 function iniciarCalculo() {
@@ -284,7 +259,7 @@ function iniciarCalculo() {
     }, 100);
 }
 
-// 11. Cálculo RK4
+// Cálculo RK4
 function calcularRK4() {
     ocultarError();
 
@@ -292,11 +267,11 @@ function calcularRK4() {
         return mostrarError("La librería Math.js no ha cargado correctamente.");
     }
 
-    const eqStr = document.getElementById('eq').value.trim();
-    const x0 = parseFloat(document.getElementById('x0').value);
-    const y0 = parseFloat(document.getElementById('y0').value);
-    const xf = parseFloat(document.getElementById('xf').value);
-    const h = parseFloat(document.getElementById('h').value);
+    const eqStr = estadoCampos.eq.texto.trim();
+    const x0 = parseFloat(estadoCampos.x0.texto);
+    const y0 = parseFloat(estadoCampos.y0.texto);
+    const xf = parseFloat(estadoCampos.xf.texto);
+    const h = parseFloat(estadoCampos.h.texto);
 
     if (!eqStr) return mostrarError("Ingrese la ecuación diferencial.");
     if (isNaN(x0) || isNaN(y0) || isNaN(xf) || isNaN(h)) return mostrarError("Llene todos los valores numéricos.");
@@ -412,9 +387,8 @@ function calcularRK4() {
     dibujarGrafica(arr_x, arr_y, eqStr);
 }
 
-// 12. Carga inicial al abrir la app
 window.onload = function() {
     cambiarFenomeno();
-    campoActivo = document.getElementById('eq');
+    renderizarPantallas();
     iniciarCalculo();
 };
