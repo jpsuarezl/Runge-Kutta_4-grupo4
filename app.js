@@ -45,7 +45,7 @@ const presetsFisicos = {
     }
 };
 
-// Renderiza el contenido de los campos mostrando el cursor parpadeante |
+// Renderiza los campos mostrando el cursor visual parpadeante
 function renderizarPantallas() {
     Object.keys(estadoCampos).forEach(id => {
         const display = document.getElementById(`display_${id}`);
@@ -96,14 +96,12 @@ function cambiarFenomeno() {
     renderizarPantallas();
 }
 
-// Mueve el cursor a la izquierda (-1) o derecha (+1)
 function moverCursor(dir) {
     const c = estadoCampos[campoActivoId];
     c.pos = Math.max(0, Math.min(c.texto.length, c.pos + dir));
     renderizarPantallas();
 }
 
-// Inserta texto respetando la posición actual del cursor
 function insertarTexto(t) {
     const c = estadoCampos[campoActivoId];
     const antes = c.texto.substring(0, c.pos);
@@ -119,7 +117,6 @@ function insertarTexto(t) {
     renderizarPantallas();
 }
 
-// Borra el carácter exacto a la izquierda del cursor
 function borrarCaracter() {
     const c = estadoCampos[campoActivoId];
     if (c.pos > 0) {
@@ -138,6 +135,7 @@ function limpiarCampo() {
     renderizarPantallas();
 }
 
+// CARGA DE FOTO Y ESCANEO OCR CON TESSERACT
 function cargarFotoCaso(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -156,9 +154,79 @@ function cargarFotoCaso(event) {
         cambiarFenomeno();
     };
     reader.readAsDataURL(file);
+
+    // Iniciar OCR
+    const statusDiv = document.getElementById('statusOCR');
+    statusDiv.classList.remove('hidden');
+    statusDiv.innerText = "🔍 Escaneando imagen en busca de datos...";
+
+    if (typeof Tesseract === 'undefined') {
+        statusDiv.innerText = "⚠️ No se pudo cargar el motor OCR Tesseract.";
+        return;
+    }
+
+    Tesseract.recognize(file, 'eng')
+        .then(({ data: { text } }) => {
+            statusDiv.innerText = "✅ Escaneo finalizado. Rellenando campos...";
+            procesarTextoOCR(text);
+            setTimeout(() => statusDiv.classList.add('hidden'), 4000);
+        })
+        .catch(err => {
+            console.error(err);
+            statusDiv.innerText = "⚠️ Error al escanear la imagen.";
+        });
 }
 
-// Dibujar Gráfica
+// FILTRADO DEL TEXTO RECONOCIDO POR REGEX
+function procesarTextoOCR(rawText) {
+    const lines = rawText.split('\n');
+
+    lines.forEach(line => {
+        const clean = line.replace(/\s+/g, '').toLowerCase();
+
+        // Buscar ecuación (ejemplo: dy/dx = 9.81 - 0.15*y  o  f(x,y)=...)
+        if (clean.includes('dy/dx=') || clean.includes('f(x,y)=')) {
+            let eq = line.split('=')[1] || '';
+            eq = eq.trim();
+            if (eq) {
+                estadoCampos.eq.texto = eq;
+                estadoCampos.eq.pos = eq.length;
+            }
+        }
+        
+        // Buscar x0 / x_0
+        const matchX0 = line.match(/x[0₀]\s*=\s*([0-9.-]+)/i);
+        if (matchX0) {
+            estadoCampos.x0.texto = matchX0[1];
+            estadoCampos.x0.pos = matchX0[1].length;
+        }
+
+        // Buscar y0 / y_0
+        const matchY0 = line.match(/y[0₀]\s*=\s*([0-9.-]+)/i);
+        if (matchY0) {
+            estadoCampos.y0.texto = matchY0[1];
+            estadoCampos.y0.pos = matchY0[1].length;
+        }
+
+        // Buscar xf
+        const matchXf = line.match(/x[f]\s*=\s*([0-9.-]+)/i);
+        if (matchXf) {
+            estadoCampos.xf.texto = matchXf[1];
+            estadoCampos.xf.pos = matchXf[1].length;
+        }
+
+        // Buscar paso h
+        const matchH = line.match(/h\s*=\s*([0-9.-]+)/i);
+        if (matchH) {
+            estadoCampos.h.texto = matchH[1];
+            estadoCampos.h.pos = matchH[1].length;
+        }
+    });
+
+    renderizarPantallas();
+    iniciarCalculo();
+}
+
 function dibujarGrafica(xData, yData, eqStr) {
     if (typeof Chart === 'undefined') return;
 
@@ -194,7 +262,6 @@ function dibujarGrafica(xData, yData, eqStr) {
     });
 }
 
-// Modales
 function abrirModalEquipo() { document.getElementById('modalEquipo').classList.remove('hidden'); }
 function cerrarModalEquipo() { document.getElementById('modalEquipo').classList.add('hidden'); }
 
@@ -259,7 +326,6 @@ function iniciarCalculo() {
     }, 100);
 }
 
-// Cálculo RK4
 function calcularRK4() {
     ocultarError();
 
