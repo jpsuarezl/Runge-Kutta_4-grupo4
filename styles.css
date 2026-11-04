@@ -111,7 +111,6 @@ label {
     margin-bottom: 0.35rem;
 }
 
-/* CAJA VIRTUAL CON CURSOR VISUAL PARPADEANTE */
 .virtual-input-wrapper {
     width: 100%;
     background-color: #ffffff;
@@ -139,7 +138,6 @@ label {
     background-color: #f5f3ff;
 }
 
-/* CURSOR SIMULADO PARPADEANTE CON COLOR VIVO */
 .blinking-cursor {
     display: inline-block;
     width: 2px;
@@ -212,6 +210,18 @@ label {
 .upload-btn-wrapper { margin-bottom: 1rem; }
 .btn-subir-foto { display: block; width: 100%; text-align: center; background: #ffffff; border: 1px dashed var(--primary); color: var(--primary-dark); font-size: 0.8rem; font-weight: 600; padding: 0.45rem; border-radius: 6px; cursor: pointer; }
 #inputFoto { display: none; }
+
+/* ESTADO DE LECTURA OCR */
+.status-ocr {
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: #4338ca;
+    background: #e0e7ff;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    margin-top: 0.4rem;
+    text-align: center;
+}
 
 .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
 .kpi-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
