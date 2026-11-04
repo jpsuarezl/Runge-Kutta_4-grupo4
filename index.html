@@ -21,18 +21,23 @@
             <div id="mensajeError" class="alerta-error"></div>
 
             <div class="input-group">
-                <label for="eq">Ecuación diferencial f(x,y) =</label>
-                <input type="text" id="eq" placeholder="Ej: 2*x*y">
+                <label for="eq">Ecuación diferencial dy/dx = f(x,y):</label>
+                <input type="text" id="eq" placeholder="Ej: y - x^2 + 1">
+            </div>
+
+            <div class="input-group">
+                <label for="eqExacta">Solución exacta analítica y(x) (Opcional):</label>
+                <input type="text" id="eqExacta" placeholder="Ej: (x+1)^2 - 0.5*exp(x)">
             </div>
             
             <div class="input-row">
                 <div class="input-group">
                     <label for="x0">x inicial (xₙ)</label>
-                    <input type="number" id="x0" placeholder="Ej: 1" step="any">
+                    <input type="number" id="x0" placeholder="Ej: 0" step="any">
                 </div>
                 <div class="input-group">
                     <label for="y0">y inicial (yₙ)</label>
-                    <input type="number" id="y0" placeholder="Ej: 1" step="any">
+                    <input type="number" id="y0" placeholder="Ej: 0.5" step="any">
                 </div>
             </div>
 
@@ -43,7 +48,7 @@
                 </div>
                 <div class="input-group">
                     <label for="h">Tamaño de paso (h)</label>
-                    <input type="number" id="h" placeholder="Ej: 0.1" step="any">
+                    <input type="number" id="h" placeholder="Ej: 0.2" step="any">
                 </div>
             </div>
             
@@ -72,14 +77,15 @@
                 </div>
             </div>
 
-            <!-- Navegación por Pestañas (Tabs UI) -->
+            <!-- Navegación por Pestañas -->
             <div class="tabs-header">
-                <button class="tab-btn active" id="btnTabGrafica" onclick="cambiarPestana('tab-grafica')">📊 Gráfica Interactiva</button>
+                <button class="tab-btn active" id="btnTabGrafica" onclick="cambiarPestana('tab-grafica')">📊 Gráfica Comparativa</button>
                 <button class="tab-btn" id="btnTabTabla" onclick="cambiarPestana('tab-tabla')">📋 Tabla Completa con Lupa</button>
             </div>
 
             <!-- Contenido Pestaña 1: Gráfica -->
             <div id="tab-grafica" class="tab-content active">
+                <div class="eq-badge-container" id="eqBadgeContainer"></div>
                 <div class="chart-box">
                     <canvas id="grafica"></canvas>
                 </div>
@@ -89,14 +95,14 @@
             <div id="tab-tabla" class="tab-content" style="display: none;">
                 <div class="table-responsive">
                     <table id="tablaResultados">
-                        <!-- Se llena dinámicamente con JS -->
+                        <!-- Se llena con JS -->
                     </table>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Ventana flotante (Modal) para la lupa por iteración -->
+    <!-- Ventana flotante (Modal) -->
     <div id="modalSustitucion" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">&times;</span>
