@@ -83,21 +83,50 @@ function cambiarFenomeno() {
     ocultarError();
 }
 
-// Inserción interactiva desde el teclado virtual sobre el campo activo
+// Mover cursor con las flechas de navegación
+function moverCursor(direccion) {
+    if (!campoActivo) campoActivo = document.getElementById('eq');
+
+    const input = campoActivo;
+    let pos = input.selectionStart != null ? input.selectionStart : input.value.length;
+    let nuevaPos = pos + direccion;
+
+    if (nuevaPos < 0) nuevaPos = 0;
+    if (nuevaPos > input.value.length) nuevaPos = input.value.length;
+
+    input.setSelectionRange(nuevaPos, nuevaPos);
+}
+
+// Inserción interactiva respetando la posición del cursor
 function insertarTexto(texto) {
     if (!campoActivo) campoActivo = document.getElementById('eq');
 
     const input = campoActivo;
     const val = input.value;
-    input.value = val + texto;
+    const pos = input.selectionStart != null ? input.selectionStart : val.length;
+
+    input.value = val.substring(0, pos) + texto + val.substring(pos);
+    
+    let nuevaPos = pos + texto.length;
+    if (texto.endsWith('()')) {
+        nuevaPos = pos + texto.length - 1; // Ubica el cursor dentro del paréntesis
+    }
+
+    input.setSelectionRange(nuevaPos, nuevaPos);
 }
 
-// Borra un solo carácter del campo activo
+// Borra el carácter ubicado justo antes del cursor
 function borrarCaracter() {
     if (!campoActivo) campoActivo = document.getElementById('eq');
 
     const input = campoActivo;
-    input.value = input.value.slice(0, -1);
+    const val = input.value;
+    const pos = input.selectionStart != null ? input.selectionStart : val.length;
+
+    if (pos > 0) {
+        input.value = val.substring(0, pos - 1) + val.substring(pos);
+        input.setSelectionRange(pos - 1, pos - 1);
+    }
 }
 
 // Limpia completamente el campo activo
@@ -328,44 +357,6 @@ function calcularRK4() {
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
 
     dibujarGrafica(arr_x, arr_y, eqStr);
-}
-
-function dibujarGrafica(xData, yData, eqStr) {
-    if (typeof Chart === 'undefined') return;
-
-    const ctx = document.getElementById('grafica').getContext('2d');
-    if (graficaRK4) graficaRK4.destroy();
-
-    graficaRK4 = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: xData.map(v => v.toFixed(2)),
-            datasets: [{
-                label: `Estado y(x) — dy/dx = ${eqStr}`,
-                data: yData,
-                borderColor: '#4338ca',
-                backgroundColor: 'rgba(67, 56, 202, 0.08)',
-                borderWidth: 2.5,
-                pointRadius: 3,
-                fill: true,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { 
-                    title: { display: true, text: 'Variable Independiente (x)', font: { weight: 'bold' } },
-                    grid: { color: '#f1f5f9' } 
-                },
-                y: { 
-                    title: { display: true, text: 'Estado (y)', font: { weight: 'bold' } },
-                    grid: { color: '#f1f5f9' } 
-                }
-            }
-        }
-    });
 }
 
 // Inicializar preset por defecto al cargar la página
