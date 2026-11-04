@@ -26,7 +26,7 @@ body {
     min-height: 100vh;
 }
 
-/* BANNER SUPERIOR */
+/* BANNER SUPERIOR CON PADDING ADECUADO */
 .header-banner {
     background: var(--header-gradient);
     color: #ffffff;
