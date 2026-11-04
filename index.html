@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora RK4 - Ecuaciones Diferenciales</title>
+    <title>Calculadora Web RK4 — Métodos Numéricos</title>
 
     <!-- Librerías Externas (Math.js y Chart.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
@@ -14,152 +14,191 @@
 </head>
 <body>
 
-    <div class="wrapper">
-        <!-- Encabezado -->
-        <header>
-            <h1>Método de Runge-Kutta (RK4)</h1>
-            <p>Grupo 4 • Análisis de Ecuaciones Diferenciales</p>
-        </header>
+    <!-- BANNER CABECERA DEGRADADO -->
+    <header class="header-banner">
+        <div class="header-content">
+            <div class="header-text">
+                <h1>Calculadora Web RK4 — Métodos Numéricos</h1>
+                <p>Solución de EDOs de 1er Orden y Simulación de Fenómenos Físicos (Grupo 4)</p>
+            </div>
+            <button class="btn-team" onclick="abrirModalEquipo()">
+                👥 Equipo de Trabajo
+            </button>
+        </div>
+    </header>
 
-        <!-- Layout Grid: Calculadora + Panel Lateral -->
+    <div class="wrapper">
+        <!-- Layout Grid: Panel Izquierdo + Panel Derecho -->
         <div class="layout-grid">
             
-            <!-- Columna Principal -->
+            <!-- PANEL IZQUIERDO: Configuración del Problema -->
             <main>
-                <!-- Entradas de datos -->
                 <section class="app-card">
+                    <h2 class="card-title">⚙️ Configuración del Problema</h2>
+                    
                     <div id="mensajeError" class="alerta-error hidden"></div>
 
+                    <!-- Selector de Fenómenos Físicos -->
                     <div class="input-group">
-                        <label for="eq">Ecuación diferencial: dy/dx = f(x,y)</label>
-                        <input type="text" id="eq" class="font-mono" placeholder="Ej: y - x^2 + 1">
+                        <label for="selectFenomeno">🎯 Fenómenos Físicos & Modelos Predeterminados:</label>
+                        <select id="selectFenomeno" class="select-preset" onchange="cambiarFenomeno()">
+                            <option value="caida">🪂 Caída Libre c/ Resistencia del Aire</option>
+                            <option value="newton">🌡️ Enfriamiento de Newton</option>
+                            <option value="poblacion">📈 Crecimiento Poblacional</option>
+                            <option value="custom">✏️ Personalizado / Tu Foto</option>
+                        </select>
+                    </div>
+
+                    <!-- Ecuación Diferencial -->
+                    <div class="input-group">
+                        <label for="eq">Ecuación Diferencial dy/dt = f(t,y):</label>
+                        <input type="text" id="eq" class="font-mono" placeholder="Ej: 9.81 - 0.15*y">
+                        
+                        <!-- Botones de ayuda sintáctica rápida -->
+                        <div class="quick-helpers">
+                            <button type="button" onclick="insertarTextoEq('t')">t</button>
+                            <button type="button" onclick="insertarTextoEq('y')">y</button>
+                            <button type="button" onclick="insertarTextoEq('^')">^</button>
+                            <button type="button" onclick="insertarTextoEq('exp()')">exp()</button>
+                            <button type="button" onclick="insertarTextoEq('sin()')">sin()</button>
+                            <button type="button" onclick="insertarTextoEq('cos()')">cos()</button>
+                            <button type="button" onclick="insertarTextoEq('sqrt()')">sqrt()</button>
+                        </div>
+                    </div>
+
+                    <!-- Previsualización de Foto / Gráfico Vectorial -->
+                    <div class="physics-illustration" id="panelFotoContainer">
+                        <img id="panelFotoPreview" class="hidden-img" alt="Foto del ejercicio cargado">
+                        <div id="panelSvgDefault"></div>
+                    </div>
+
+                    <!-- Botón para subir foto -->
+                    <div class="upload-btn-wrapper">
+                        <label for="inputFoto" class="btn-subir-foto">📷 Adjuntar Foto del Ejercicio</label>
+                        <input type="file" id="inputFoto" accept="image/*" onchange="cargarFotoCaso(event)">
+                    </div>
+
+                    <!-- Condiciones Iniciales y Parámetros -->
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="x0">Tiempo inicial (t₀):</label>
+                            <input type="number" id="x0" placeholder="0" step="any">
+                        </div>
+                        <div class="input-group">
+                            <label for="y0">Estado inicial (y₀):</label>
+                            <input type="number" id="y0" placeholder="0" step="any">
+                        </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="x0">Valor inicial x₀</label>
-                            <input type="number" id="x0" placeholder="Ej: 0" step="any">
+                            <label for="xf">Tiempo final (tf):</label>
+                            <input type="number" id="xf" placeholder="10" step="any">
                         </div>
                         <div class="input-group">
-                            <label for="y0">Valor inicial y₀</label>
-                            <input type="number" id="y0" placeholder="Ej: 0.5" step="any">
-                        </div>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="xf">Límite x final (xf)</label>
-                            <input type="number" id="xf" placeholder="Ej: 2" step="any">
-                        </div>
-                        <div class="input-group">
-                            <label for="h">Tamaño de paso (h)</label>
-                            <input type="number" id="h" placeholder="Ej: 0.2" step="any">
+                            <label for="h">Tamaño de paso (h):</label>
+                            <input type="number" id="h" placeholder="0.2" step="any">
                         </div>
                     </div>
 
                     <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
-                        Ejecutar Cálculo
+                        Ejecutar Cálculo RK4
                     </button>
                 </section>
+            </main>
 
-                <!-- Resultados -->
-                <section id="panelResultados" class="app-card hidden">
-                    <div class="kpi-container">
-                        <div class="kpi-card">
-                            <span class="kpi-title">Iteraciones</span>
-                            <span id="kpiPasos" class="kpi-value">0</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-title">Resultado Final y(xf)</span>
-                            <span id="kpiYFinal" class="kpi-value">0.000000</span>
-                        </div>
-                        <div class="kpi-card">
-                            <span class="kpi-title">Paso (h)</span>
-                            <span id="kpiH" class="kpi-value">0.00</span>
-                        </div>
+            <!-- PANEL DERECHO: Resultados y Pestañas -->
+            <aside>
+                <!-- Tarjetas KPI -->
+                <div class="kpi-container">
+                    <div class="kpi-card">
+                        <span class="kpi-title">ITERACIONES</span>
+                        <span id="kpiPasos" class="kpi-value">0</span>
                     </div>
+                    <div class="kpi-card">
+                        <span class="kpi-title">VALOR FINAL y(tf)</span>
+                        <span id="kpiYFinal" class="kpi-value">0.0000</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-title">PASO (h)</span>
+                        <span id="kpiH" class="kpi-value">0.00</span>
+                    </div>
+                </div>
 
+                <!-- Panel Principal de Resultados -->
+                <section id="panelResultados" class="app-card">
+                    <!-- Navegación por Pestañas -->
                     <div class="tabs-nav">
-                        <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">Gráfica</button>
-                        <button id="btnTabTabla" class="tab-btn" onclick="cambiarPestana('tab-tabla')">Tabla de Datos</button>
+                        <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">
+                            📊 Gráficas Sincronizadas
+                        </button>
+                        <button id="btnTabTabla" class="tab-btn" onclick="cambiarPestana('tab-tabla')">
+                            📋 Tabla de Iteraciones
+                        </button>
                     </div>
 
+                    <!-- Pestaña 1: Gráfica -->
                     <div id="tab-grafica">
-                        <div style="position: relative; height: 320px; width: 100%;">
+                        <h3 id="graficaTitulo" class="chart-section-title">Gráfica: Solución del Estado y(t) vs Tiempo</h3>
+                        <div style="position: relative; height: 350px; width: 100%;">
                             <canvas id="grafica"></canvas>
                         </div>
                     </div>
 
+                    <!-- Pestaña 2: Tabla -->
                     <div id="tab-tabla" class="hidden">
                         <div class="table-wrap">
                             <table id="tablaResultados"></table>
                         </div>
                     </div>
                 </section>
-            </main>
-
-            <!-- Columna Lateral: Fenómeno Físico y Carga de Foto -->
-            <aside class="side-panel">
-                <div class="side-header">
-                    <label for="selectFenomeno" class="side-label-select">Seleccionar Caso:</label>
-                    <select id="selectFenomeno" class="select-preset" onchange="cambiarFenomeno()">
-                        <option value="newton">🌡️ Enfriamiento de Newton</option>
-                        <option value="caida">🪂 Caída Libre con Arrastre</option>
-                        <option value="poblacion">📈 Crecimiento Poblacional</option>
-                        <option value="custom">✏️ Personalizado / Tu Foto</option>
-                    </select>
-                </div>
-
-                <span id="panelBadge" class="physics-badge">Termodinámica</span>
-                <h2 id="panelTitulo">Ley de Enfriamiento de Newton</h2>
-
-                <!-- Contenedor Pequeño para Foto o Gráfico Vectorial -->
-                <div class="physics-illustration" id="panelFotoContainer">
-                    <img id="panelFotoPreview" class="hidden-img" alt="Foto del ejercicio cargado">
-                    <div id="panelSvgDefault">
-                        <svg width="180" height="110" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M50 45H120V80C120 88.2843 113.284 95 105 95H65C56.7157 95 50 88.2843 50 80V45Z" fill="#3b82f6" fill-opacity="0.15" stroke="#2563eb" stroke-width="2"/>
-                            <path d="M120 52H132C136.418 52 140 55.5817 140 60V68C140 72.4183 136.418 76 132 76H120" stroke="#2563eb" stroke-width="2"/>
-                            <rect x="54" y="50" width="62" height="6" rx="3" fill="#ef4444"/>
-                            <path d="M65 38C65 34 71 34 71 30" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M85 40C85 36 91 36 91 32" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M105 38C105 34 111 34 111 30" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
-                            <text x="10" y="25" fill="#64748b" font-size="10" font-family="sans-serif" font-weight="bold">T_amb = 20°C</text>
-                            <text x="60" y="75" fill="#ef4444" font-size="10" font-family="sans-serif" font-weight="bold">90°C</text>
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- Botón para subir foto del ejercicio -->
-                <div class="upload-btn-wrapper">
-                    <label for="inputFoto" class="btn-subir-foto">📷 Subir foto del ejercicio</label>
-                    <input type="file" id="inputFoto" accept="image/*" onchange="cargarFotoCaso(event)">
-                </div>
-
-                <p id="panelDesc" class="physics-desc">
-                    Modela la transferencia de calor de un fluido caliente (90°C) expuesto a temperatura ambiente (20°C).
-                </p>
-
-                <div id="panelFormula" class="formula-box">
-                    <strong>EDO:</strong> dT/dt = -k(T - T_amb)<br>
-                    <strong>Input:</strong> <span style="color:#2563eb;">-0.15 * (y - 20)</span>
-                </div>
-
-                <button class="btn-preset" onclick="cargarFenomenoFisico()">
-                    🚀 Cargar y Simular en el Solver
-                </button>
             </aside>
 
         </div>
     </div>
 
-    <!-- Modal de Desglose -->
+    <!-- MODAL 1: Sustitución y Procedimiento Matemático Paso a Paso -->
     <div id="modalSustitucion" class="modal-overlay hidden">
         <div class="modal-card">
             <button class="btn-close" onclick="cerrarModal()">&times;</button>
-            <h3 id="modalTitulo" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Sustitución de datos</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Detalle numérico paso a paso para esta iteración.</p>
+            <h3 id="modalTitulo" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #1e1b4b;">Sustitución de datos</h3>
+            <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1rem;">Detalle numérico explícito de los coeficientes k₁, k₂, k₃, k₄ para esta iteración.</p>
             <div id="contenidoModal"></div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Equipo de Trabajo (Integrantes) -->
+    <div id="modalEquipo" class="modal-overlay hidden">
+        <div class="modal-card modal-team-card">
+            <button class="btn-close" onclick="cerrarModalEquipo()">&times;</button>
+            <div style="text-align: center; margin-bottom: 1.25rem;">
+                <span style="font-size: 2.5rem;">🎓</span>
+                <h3 style="font-size: 1.3rem; font-weight: 800; color: #1e1b4b; margin-top: 0.25rem;">Equipo de Trabajo — Grupo 4</h3>
+                <p style="color: #64748b; font-size: 0.85rem;">Ecuaciones Diferenciales • Métodos Numéricos</p>
+            </div>
+            <ul class="team-list">
+                <li>
+                    <span class="member-icon">👤</span>
+                    <div>
+                        <strong>Dhamar Sofia Patiño</strong>
+                        <span class="member-role">Integrante</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="member-icon">👤</span>
+                    <div>
+                        <strong>Santiago Florez Muñoz</strong>
+                        <span class="member-role">Integrante</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="member-icon">👤</span>
+                    <div>
+                        <strong>Jean Paul Suarez Luna</strong>
+                        <span class="member-role">Integrante</span>
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
 
