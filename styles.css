@@ -26,7 +26,7 @@ body {
     min-height: 100vh;
 }
 
-/* BANNER SUPERIOR CON PADDING ADECUADO */
+/* BANNER SUPERIOR */
 .header-banner {
     background: var(--header-gradient);
     color: #ffffff;
@@ -160,28 +160,67 @@ input:focus, .select-preset:focus {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-.quick-helpers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-top: 0.4rem;
+/* TECLADO VIRTUAL TÁCTIL */
+.virtual-keypad {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    background: #f8fafc;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
 }
 
-.quick-helpers button {
-    background: #e0e7ff;
-    color: #3730a3;
-    border: none;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+.virtual-keypad button {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    padding: 0.45rem 0.1rem;
+    border-radius: 6px;
     font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-size: 0.775rem;
-    font-weight: 600;
+    font-size: 0.825rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.12s ease;
+    text-align: center;
+    user-select: none;
 }
 
-.quick-helpers button:hover {
-    background: #c7d2fe;
+.virtual-keypad button:hover {
+    background: #e0e7ff;
+    border-color: #818cf8;
+    color: #3730a3;
+}
+
+.virtual-keypad button:active {
+    transform: scale(0.93);
+}
+
+.virtual-keypad .btn-key-var {
+    background: #e0e7ff;
+    border-color: #c7d2fe;
+    color: #3730a3;
+}
+
+.virtual-keypad .btn-key-action {
+    background: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.virtual-keypad .btn-key-action:hover {
+    background: #fde68a;
+}
+
+.virtual-keypad .btn-key-clear {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.virtual-keypad .btn-key-clear:hover {
+    background: #fca5a5;
 }
 
 .btn-action {
