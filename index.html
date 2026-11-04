@@ -28,7 +28,6 @@
     </header>
 
     <div class="wrapper">
-        <!-- Layout Grid: Panel Izquierdo + Panel Derecho -->
         <div class="layout-grid">
             
             <!-- PANEL IZQUIERDO: Configuración del Problema -->
@@ -49,10 +48,12 @@
                         </select>
                     </div>
 
-                    <!-- Ecuación Diferencial -->
+                    <!-- Ecuación Diferencial con Visualizador de Cursor Simulado -->
                     <div class="input-group">
                         <label for="eq">Ecuación Diferencial dy/dx = f(x,y):</label>
-                        <input type="text" id="eq" class="font-mono input-target active-field" placeholder="Ej: y - x^2 + 1" inputmode="none" readonly onclick="seleccionarCampo(this)">
+                        <div class="virtual-input-wrapper" onclick="seleccionarCampo('eq')">
+                            <div id="display_eq" class="virtual-display font-mono"></div>
+                        </div>
                     </div>
 
                     <!-- Previsualización de Foto / Gráfico Vectorial -->
@@ -67,68 +68,69 @@
                         <input type="file" id="inputFoto" accept="image/*" onchange="cargarFotoCaso(event)">
                     </div>
 
-                    <!-- Condiciones Iniciales y Parámetros (x0 y xf) -->
+                    <!-- Condiciones Iniciales y Parámetros -->
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="x0">x inicial (x₀):</label>
-                            <input type="text" id="x0" class="input-target" placeholder="0" inputmode="none" readonly onclick="seleccionarCampo(this)">
+                            <label>x inicial (x₀):</label>
+                            <div class="virtual-input-wrapper" onclick="seleccionarCampo('x0')">
+                                <div id="display_x0" class="virtual-display"></div>
+                            </div>
                         </div>
                         <div class="input-group">
-                            <label for="y0">y inicial (y₀):</label>
-                            <input type="text" id="y0" class="input-target" placeholder="0.5" inputmode="none" readonly onclick="seleccionarCampo(this)">
+                            <label>y inicial (y₀):</label>
+                            <div class="virtual-input-wrapper" onclick="seleccionarCampo('y0')">
+                                <div id="display_y0" class="virtual-display"></div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="xf">x final (xf):</label>
-                            <input type="text" id="xf" class="input-target" placeholder="2" inputmode="none" readonly onclick="seleccionarCampo(this)">
+                            <label>x final (xf):</label>
+                            <div class="virtual-input-wrapper" onclick="seleccionarCampo('xf')">
+                                <div id="display_xf" class="virtual-display"></div>
+                            </div>
                         </div>
                         <div class="input-group">
-                            <label for="h">Tamaño de paso (h):</label>
-                            <input type="text" id="h" class="input-target" placeholder="0.2" inputmode="none" readonly onclick="seleccionarCampo(this)">
+                            <label>Tamaño de paso (h):</label>
+                            <div class="virtual-input-wrapper" onclick="seleccionarCampo('h')">
+                                <div id="display_h" class="virtual-display"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- TECLADO VIRTUAL TÁCTIL CON FLECHAS DE NAVEGACIÓN -->
+                    <!-- TECLADO VIRTUAL TÁCTIL CON NAVEGACIÓN -->
                     <div class="virtual-keypad">
-                        <!-- Fila 1: Control, Borrado y Navegación con Flechas -->
                         <button type="button" onclick="limpiarCampo()" class="btn-key-clear" title="Limpiar todo">C</button>
                         <button type="button" onclick="borrarCaracter()" class="btn-key-action" title="Borrar uno">⌫</button>
                         <button type="button" onclick="moverCursor(-1)" class="btn-key-nav" title="Mover a la izquierda">◀</button>
                         <button type="button" onclick="moverCursor(1)" class="btn-key-nav" title="Mover a la derecha">▶</button>
 
-                        <!-- Fila 2: Funciones -->
                         <button type="button" onclick="insertarTexto('sin()')" class="btn-key-func">sin</button>
                         <button type="button" onclick="insertarTexto('cos()')" class="btn-key-func">cos</button>
                         <button type="button" onclick="insertarTexto('exp()')" class="btn-key-func">exp</button>
                         <button type="button" onclick="insertarTexto('sqrt()')" class="btn-key-func">sqrt</button>
 
-                        <!-- Fila 3: Operadores y Paréntesis -->
                         <button type="button" onclick="insertarTexto('(')">(</button>
                         <button type="button" onclick="insertarTexto(')')">)</button>
                         <button type="button" onclick="insertarTexto('^')">^</button>
                         <button type="button" onclick="insertarTexto('/')">/</button>
 
-                        <!-- Fila 4: Números 7-9 y Multiplicación -->
                         <button type="button" onclick="insertarTexto('7')">7</button>
                         <button type="button" onclick="insertarTexto('8')">8</button>
                         <button type="button" onclick="insertarTexto('9')">9</button>
                         <button type="button" onclick="insertarTexto('*')">*</button>
 
-                        <!-- Fila 5: Números 4-6 y Resta -->
                         <button type="button" onclick="insertarTexto('4')">4</button>
                         <button type="button" onclick="insertarTexto('5')">5</button>
                         <button type="button" onclick="insertarTexto('6')">6</button>
                         <button type="button" onclick="insertarTexto('-')">-</button>
 
-                        <!-- Fila 6: Números 1-3 y Suma -->
                         <button type="button" onclick="insertarTexto('1')">1</button>
                         <button type="button" onclick="insertarTexto('2')">2</button>
                         <button type="button" onclick="insertarTexto('3')">3</button>
                         <button type="button" onclick="insertarTexto('+')">+</button>
 
-                        <!-- Fila 7: Cero, Punto y Variables -->
                         <button type="button" onclick="insertarTexto('0')">0</button>
                         <button type="button" onclick="insertarTexto('.')">.</button>
                         <button type="button" onclick="insertarTexto('x')" class="btn-key-var">x</button>
@@ -141,9 +143,8 @@
                 </section>
             </main>
 
-            <!-- PANEL DERECHO: Resultados y Pestañas -->
+            <!-- PANEL DERECHO: Resultados -->
             <aside>
-                <!-- Tarjetas KPI -->
                 <div class="kpi-container">
                     <div class="kpi-card">
                         <span class="kpi-title">ITERACIONES</span>
@@ -159,9 +160,7 @@
                     </div>
                 </div>
 
-                <!-- Panel Principal de Resultados -->
                 <section id="panelResultados" class="app-card">
-                    <!-- Navegación por Pestañas -->
                     <div class="tabs-nav">
                         <button id="btnTabGrafica" class="tab-btn active" onclick="cambiarPestana('tab-grafica')">
                             📊 Gráficas Sincronizadas
@@ -171,7 +170,6 @@
                         </button>
                     </div>
 
-                    <!-- Pestaña 1: Gráfica -->
                     <div id="tab-grafica">
                         <h3 id="graficaTitulo" class="chart-section-title">Gráfica: Solución del Estado y(x) vs x</h3>
                         <div style="position: relative; height: 350px; width: 100%;">
@@ -179,7 +177,6 @@
                         </div>
                     </div>
 
-                    <!-- Pestaña 2: Tabla -->
                     <div id="tab-tabla" class="hidden">
                         <div class="table-wrap">
                             <table id="tablaResultados"></table>
@@ -191,7 +188,7 @@
         </div>
     </div>
 
-    <!-- MODAL 1: Sustitución y Procedimiento Matemático Paso a Paso -->
+    <!-- MODALES -->
     <div id="modalSustitucion" class="modal-overlay hidden">
         <div class="modal-card">
             <button class="btn-close" onclick="cerrarModal()">&times;</button>
@@ -201,7 +198,6 @@
         </div>
     </div>
 
-    <!-- MODAL 2: Equipo de Trabajo (Integrantes) -->
     <div id="modalEquipo" class="modal-overlay hidden">
         <div class="modal-card modal-team-card">
             <button class="btn-close" onclick="cerrarModalEquipo()">&times;</button>
@@ -211,32 +207,13 @@
                 <p style="color: #64748b; font-size: 0.85rem;">Ecuaciones Diferenciales • Métodos Numéricos</p>
             </div>
             <ul class="team-list">
-                <li>
-                    <span class="member-icon">👤</span>
-                    <div>
-                        <strong>Dhamar Sofia Patiño</strong>
-                        <span class="member-role">Integrante</span>
-                    </div>
-                </li>
-                <li>
-                    <span class="member-icon">👤</span>
-                    <div>
-                        <strong>Santiago Florez Muñoz</strong>
-                        <span class="member-role">Integrante</span>
-                    </div>
-                </li>
-                <li>
-                    <span class="member-icon">👤</span>
-                    <div>
-                        <strong>Jean Paul Suarez Luna</strong>
-                        <span class="member-role">Integrante</span>
-                    </div>
-                </li>
+                <li><span class="member-icon">👤</span><div><strong>Dhamar Sofia Patiño</strong><span class="member-role">Integrante</span></div></li>
+                <li><span class="member-icon">👤</span><div><strong>Santiago Florez Muñoz</strong><span class="member-role">Integrante</span></div></li>
+                <li><span class="member-icon">👤</span><div><strong>Jean Paul Suarez Luna</strong><span class="member-role">Integrante</span></div></li>
             </ul>
         </div>
     </div>
 
-    <!-- Script de Lógica Externa -->
     <script src="app.js"></script>
 </body>
 </html>
