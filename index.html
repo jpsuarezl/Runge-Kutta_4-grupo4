@@ -4,116 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Runge-Kutta 4 - Grupo 4</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Math.js & Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen py-8 px-4 sm:px-6">
 
-    <header class="main-header">
-        <h1>Método de Runge-Kutta de cuarto orden (RK4)</h1>
-        <p>Grupo 4 - Ecuaciones Diferenciales</p>
+    <!-- Encabezado Principal -->
+    <header class="max-w-4xl mx-auto text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-sky-900 tracking-tight">
+            Método de Runge-Kutta de cuarto orden (RK4)
+        </h1>
+        <p class="text-slate-500 font-medium mt-2 text-base sm:text-lg">
+            Grupo 4 - Ecuaciones Diferenciales
+        </p>
     </header>
 
-    <main class="dashboard">
-        <!-- Tarjeta de Controles -->
-        <section class="card form-section">
-            <div id="mensajeError" class="alerta-error"></div>
-
-            <div class="input-group">
-                <label for="eq">Ecuación diferencial dy/dx = f(x,y):</label>
-                <input type="text" id="eq" placeholder="Ej: y - x^2 + 1">
-            </div>
-
-            <div class="input-group">
-                <label for="eqExacta">Solución exacta analítica y(x) (Opcional):</label>
-                <input type="text" id="eqExacta" placeholder="Ej: (x+1)^2 - 0.5*exp(x)">
-            </div>
+    <main class="max-w-4xl mx-auto space-y-6">
+        <!-- Formulario de Entrada -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 transition-all hover:shadow-md">
             
-            <div class="input-row">
-                <div class="input-group">
-                    <label for="x0">x inicial (xₙ)</label>
-                    <input type="number" id="x0" placeholder="Ej: 0" step="any">
+            <!-- Alerta de Error -->
+            <div id="mensajeError" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium"></div>
+
+            <div class="space-y-4">
+                <div>
+                    <label for="eq" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Ecuación diferencial <span class="font-mono text-brand-600">dy/dx = f(x,y)</span>:
+                    </label>
+                    <input type="text" id="eq" placeholder="Ej: y - x^2 + 1"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all font-mono text-sm">
                 </div>
-                <div class="input-group">
-                    <label for="y0">y inicial (yₙ)</label>
-                    <input type="number" id="y0" placeholder="Ej: 0.5" step="any">
+
+                <div>
+                    <label for="eqExacta" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Solución exacta analítica <span class="font-mono text-sky-600">y(x)</span> <span class="text-slate-400 font-normal">(Opcional)</span>:
+                    </label>
+                    <input type="text" id="eqExacta" placeholder="Ej: (x+1)^2 - 0.5*exp(x)"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all font-mono text-sm">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="x0" class="block text-sm font-semibold text-slate-700 mb-1.5">x inicial (x₀)</label>
+                        <input type="number" id="x0" placeholder="Ej: 0" step="any"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                    </div>
+                    <div>
+                        <label for="y0" class="block text-sm font-semibold text-slate-700 mb-1.5">y inicial (y₀)</label>
+                        <input type="number" id="y0" placeholder="Ej: 0.5" step="any"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="xf" class="block text-sm font-semibold text-slate-700 mb-1.5">x final (xf)</label>
+                        <input type="number" id="xf" placeholder="Ej: 2" step="any"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                    </div>
+                    <div>
+                        <label for="h" class="block text-sm font-semibold text-slate-700 mb-1.5">Tamaño de paso (h)</label>
+                        <input type="number" id="h" placeholder="Ej: 0.2" step="any"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-sm">
+                    </div>
                 </div>
             </div>
 
-            <div class="input-row">
-                <div class="input-group">
-                    <label for="xf">x final (xf)</label>
-                    <input type="number" id="xf" placeholder="Ej: 2" step="any">
-                </div>
-                <div class="input-group">
-                    <label for="h">Tamaño de paso (h)</label>
-                    <input type="number" id="h" placeholder="Ej: 0.2" step="any">
-                </div>
-            </div>
-            
-            <button id="btnCalcular" onclick="iniciarCalculo()">
+            <button id="btnCalcular" onclick="iniciarCalculo()"
+                class="w-full mt-6 bg-brand-700 hover:bg-brand-800 active:scale-[0.99] text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm hover:shadow transition-all duration-200 disabled:bg-slate-400 disabled:cursor-not-allowed">
                 Ejecutar Cálculo
             </button>
         </section>
 
-        <!-- Tarjeta de Resultados -->
-        <section class="card results-section" id="panelResultados">
-            <h2>Resultados del Análisis</h2>
-            
-            <!-- Resumen de Métricas KPI -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <span class="metric-title">Iteraciones Totales</span>
-                    <span class="metric-value" id="kpiPasos">0</span>
+        <!-- Panel de Resultados -->
+        <section id="panelResultados" class="hidden bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 pb-3 border-b border-slate-100 mb-6">
+                Resultados del Análisis
+            </h2>
+
+            <!-- Tarjetas KPI -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center">
+                    <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Iteraciones Totales</span>
+                    <span id="kpiPasos" class="text-2xl font-extrabold text-brand-700">0</span>
                 </div>
-                <div class="metric-card">
-                    <span class="metric-title">Valor Final y(xf)</span>
-                    <span class="metric-value" id="kpiYFinal">0.000000</span>
+                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center">
+                    <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Valor Final y(xf)</span>
+                    <span id="kpiYFinal" class="text-2xl font-extrabold text-brand-700">0.000000</span>
                 </div>
-                <div class="metric-card">
-                    <span class="metric-title">Tamaño de Paso (h)</span>
-                    <span class="metric-value" id="kpiH">0.00</span>
+                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center">
+                    <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tamaño de Paso (h)</span>
+                    <span id="kpiH" class="text-2xl font-extrabold text-brand-700">0.00</span>
                 </div>
             </div>
 
             <!-- Navegación por Pestañas -->
-            <div class="tabs-header">
-                <button class="tab-btn active" id="btnTabGrafica" onclick="cambiarPestana('tab-grafica')">📊 Gráfica Comparativa</button>
-                <button class="tab-btn" id="btnTabTabla" onclick="cambiarPestana('tab-tabla')">📋 Tabla Completa con Lupa</button>
-            </div>
-
-            <!-- Contenido Pestaña 1: Gráfica -->
-            <div id="tab-grafica" class="tab-content active">
-                <div class="eq-badge-container" id="eqBadgeContainer"></div>
-                <div class="chart-box">
-                    <canvas id="grafica"></canvas>
-                </div>
-            </div>
-
-            <!-- Contenido Pestaña 2: Tabla -->
-            <div id="tab-tabla" class="tab-content" style="display: none;">
-                <div class="table-responsive">
-                    <table id="tablaResultados">
-                        <!-- Se llena con JS -->
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Ventana flotante (Modal) -->
-    <div id="modalSustitucion" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="cerrarModal()">&times;</span>
-            <h3 style="color: #4338ca; margin-top: 0;" id="modalTitulo">Sustitución de datos</h3>
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
-                Reemplazo explícito de los valores numéricos en la fórmula para esta iteración.
-            </p>
-            <div id="contenidoModal"></div>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-</body>
-</html>
+            <div class="flex border-b border-slate-200 mb-6 space-x-2">
+                <button id="btnTabGrafica" onclick="cambiarPestana('tab-grafica')"
+                    class="py-2.5 px-4 text-sm font-semibold text-brand-700 border-b-2 border-brand-700 focus:outline-none transition-colors">
+                    📊 Gráfica Comparativa
+                </button>
+                <button id="btnTabTabla" onclick="cambiarPestana('tab-tabla')"
+                    class="py-2.5 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:text-brand-700 focus:outline-none transition-colors">
+                    📋 Tabla Completa con Lupa
+                </button
