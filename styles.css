@@ -208,11 +208,6 @@ label {
     margin-bottom: 0.75rem; padding: 0.5rem;
 }
 
-#panelFotoPreview { max-width: 100%; max-height: 100%; object-fit: contain; }
-.upload-btn-wrapper { margin-bottom: 1rem; }
-.btn-subir-foto { display: block; width: 100%; text-align: center; background: #ffffff; border: 1px dashed var(--primary); color: var(--primary-dark); font-size: 0.8rem; font-weight: 600; padding: 0.45rem; border-radius: 6px; cursor: pointer; }
-#inputFoto { display: none; }
-
 .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
 .kpi-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
 .kpi-title { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: block; }
@@ -237,4 +232,3 @@ td { padding: 0.75rem; border-bottom: 1px solid #f1f5f9; font-family: monospace;
 
 .alerta-error { background-color: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; }
 .hidden { display: none !important; }
-.hidden-img { display: none; }
