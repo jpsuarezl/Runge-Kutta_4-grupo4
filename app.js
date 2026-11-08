@@ -316,16 +316,10 @@ function calcularRK4() {
             iter: iteracion,
             htmlModal: `
                 <div style="background:#f8fafc; border-left:3px solid #4338ca; padding:0.85rem; margin-bottom:0.5rem; font-family:monospace; font-size:0.82rem; line-height:1.7;">
-                    <!-- Ecuación Original -->
-                    <div style="background:#e0e7ff; color:#3730a3; padding:0.4rem 0.6rem; border-radius:4px; margin-bottom:0.75rem; font-weight:bold;">
-                        dy/dx = f(x, y) = ${eqStr}
-                    </div>
-
                     <!-- k1 -->
                     <strong>k₁:</strong><br>
                     x₁ = ${x1.toFixed(4)}<br>
                     y₁ = ${y1.toFixed(6)}<br>
-                    k₁ = f(x₁, y₁) = ${eqStr}<br>
                     k₁ = f(${x1.toFixed(4)}, ${y1.toFixed(6)}) = ${formatearSustitucion(eqStr, x1.toFixed(4), y1.toFixed(6))}<br>
                     → <strong>k₁ = ${k1.toFixed(6)}</strong><br><br>
 
@@ -333,7 +327,6 @@ function calcularRK4() {
                     <strong>k₂:</strong><br>
                     x₂ = x + h/2 = ${x1.toFixed(4)} + ${h}/2 = <strong>${x2.toFixed(4)}</strong><br>
                     y₂ = y + (h/2)·k₁ = ${y1.toFixed(6)} + (${h}/2)·(${k1.toFixed(6)}) = <strong>${y2.toFixed(6)}</strong><br>
-                    k₂ = f(x₂, y₂) = ${eqStr}<br>
                     k₂ = f(${x2.toFixed(4)}, ${y2.toFixed(6)}) = ${formatearSustitucion(eqStr, x2.toFixed(4), y2.toFixed(6))}<br>
                     → <strong>k₂ = ${k2.toFixed(6)}</strong><br><br>
 
@@ -341,7 +334,6 @@ function calcularRK4() {
                     <strong>k₃:</strong><br>
                     x₃ = x + h/2 = ${x1.toFixed(4)} + ${h}/2 = <strong>${x3.toFixed(4)}</strong><br>
                     y₃ = y + (h/2)·k₂ = ${y1.toFixed(6)} + (${h}/2)·(${k2.toFixed(6)}) = <strong>${y3.toFixed(6)}</strong><br>
-                    k₃ = f(x₃, y₃) = ${eqStr}<br>
                     k₃ = f(${x3.toFixed(4)}, ${y3.toFixed(6)}) = ${formatearSustitucion(eqStr, x3.toFixed(4), y3.toFixed(6))}<br>
                     → <strong>k₃ = ${k3.toFixed(6)}</strong><br><br>
 
@@ -349,7 +341,6 @@ function calcularRK4() {
                     <strong>k₄:</strong><br>
                     x₄ = x + h = ${x1.toFixed(4)} + ${h} = <strong>${x4.toFixed(4)}</strong><br>
                     y₄ = y + h·k₃ = ${y1.toFixed(6)} + ${h}·(${k3.toFixed(6)}) = <strong>${y4.toFixed(6)}</strong><br>
-                    k₄ = f(x₄, y₄) = ${eqStr}<br>
                     k₄ = f(${x4.toFixed(4)}, ${y4.toFixed(6)}) = ${formatearSustitucion(eqStr, x4.toFixed(4), y4.toFixed(6))}<br>
                     → <strong>k₄ = ${k4.toFixed(6)}</strong><br><br>
 
