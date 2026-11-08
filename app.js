@@ -315,22 +315,40 @@ function calcularRK4() {
         detallesIteraciones.push({
             iter: iteracion,
             htmlModal: `
-                <div style="background:#f8fafc; border-left:3px solid #4338ca; padding:0.75rem; margin-bottom:0.5rem; font-family:monospace; font-size:0.8rem; line-height:1.6;">
-                    <strong>k₁</strong> = f(${x1.toFixed(4)}, ${y1.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, x1.toFixed(4), y1.toFixed(6))}<br>
+                <div style="background:#f8fafc; border-left:3px solid #4338ca; padding:0.85rem; margin-bottom:0.5rem; font-family:monospace; font-size:0.82rem; line-height:1.7;">
+                    <!-- k1 -->
+                    <strong>k₁:</strong><br>
+                    x₁ = ${x1.toFixed(4)}<br>
+                    y₁ = ${y1.toFixed(6)}<br>
+                    k₁ = f(${x1.toFixed(4)}, ${y1.toFixed(6)}) = ${formatearSustitucion(eqStr, x1.toFixed(4), y1.toFixed(6))}<br>
                     → <strong>k₁ = ${k1.toFixed(6)}</strong><br><br>
 
-                    <strong>k₂</strong> = f(${x2.toFixed(4)}, ${y2.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, x2.toFixed(4), y2.toFixed(6))}<br>
+                    <!-- k2 -->
+                    <strong>k₂:</strong><br>
+                    x₂ = x + h/2 = ${x1.toFixed(4)} + ${h}/2 = <strong>${x2.toFixed(4)}</strong><br>
+                    y₂ = y + (h/2)·k₁ = ${y1.toFixed(6)} + (${h}/2)·(${k1.toFixed(6)}) = <strong>${y2.toFixed(6)}</strong><br>
+                    k₂ = f(${x2.toFixed(4)}, ${y2.toFixed(6)}) = ${formatearSustitucion(eqStr, x2.toFixed(4), y2.toFixed(6))}<br>
                     → <strong>k₂ = ${k2.toFixed(6)}</strong><br><br>
 
-                    <strong>k₃</strong> = f(${x3.toFixed(4)}, ${y3.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, x3.toFixed(4), y3.toFixed(6))}<br>
+                    <!-- k3 -->
+                    <strong>k₃:</strong><br>
+                    x₃ = x + h/2 = ${x1.toFixed(4)} + ${h}/2 = <strong>${x3.toFixed(4)}</strong><br>
+                    y₃ = y + (h/2)·k₂ = ${y1.toFixed(6)} + (${h}/2)·(${k2.toFixed(6)}) = <strong>${y3.toFixed(6)}</strong><br>
+                    k₃ = f(${x3.toFixed(4)}, ${y3.toFixed(6)}) = ${formatearSustitucion(eqStr, x3.toFixed(4), y3.toFixed(6))}<br>
                     → <strong>k₃ = ${k3.toFixed(6)}</strong><br><br>
 
-                    <strong>k₄</strong> = f(${x4.toFixed(4)}, ${y4.toFixed(6)})<br>
-                    = ${formatearSustitucion(eqStr, x4.toFixed(4), y4.toFixed(6))}<br>
-                    → <strong>k₄ = ${k4.toFixed(6)}</strong>
+                    <!-- k4 -->
+                    <strong>k₄:</strong><br>
+                    x₄ = x + h = ${x1.toFixed(4)} + ${h} = <strong>${x4.toFixed(4)}</strong><br>
+                    y₄ = y + h·k₃ = ${y1.toFixed(6)} + ${h}·(${k3.toFixed(6)}) = <strong>${y4.toFixed(6)}</strong><br>
+                    k₄ = f(${x4.toFixed(4)}, ${y4.toFixed(6)}) = ${formatearSustitucion(eqStr, x4.toFixed(4), y4.toFixed(6))}<br>
+                    → <strong>k₄ = ${k4.toFixed(6)}</strong><br><br>
+
+                    <!-- Resultado Final Iteración -->
+                    <hr style="border:0; border-top:1px solid #cbd5e1; margin:0.6rem 0;">
+                    <strong>Nuevo y (RK4):</strong><br>
+                    y_{${iteracion}} = ${y1.toFixed(6)} + (${h}/6)·[${k1.toFixed(6)} + 2(${k2.toFixed(6)}) + 2(${k3.toFixed(6)}) + ${k4.toFixed(6)}]<br>
+                    → <strong style="color:#4338ca;">y_{${iteracion}} = ${y_next.toFixed(6)}</strong>
                 </div>
             `
         });
