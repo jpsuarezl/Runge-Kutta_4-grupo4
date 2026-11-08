@@ -49,6 +49,7 @@ const presetsFisicos = {
 function renderizarPantallas() {
     Object.keys(estadoCampos).forEach(id => {
         const display = document.getElementById(`display_${id}`);
+        if (!display) return;
         const wrapper = display.parentElement;
         const c = estadoCampos[id];
 
@@ -83,11 +84,8 @@ function cambiarFenomeno() {
         estadoCampos[field].pos = data[field].length;
     });
 
-    const preview = document.getElementById('panelFotoPreview');
     const svgContainer = document.getElementById('panelSvgDefault');
-
-    if (preview.dataset.custom !== "true") {
-        preview.classList.add('hidden-img');
+    if (svgContainer) {
         svgContainer.innerHTML = data.svgHTML;
         svgContainer.style.display = 'block';
     }
@@ -136,26 +134,6 @@ function limpiarCampo() {
     c.texto = "";
     c.pos = 0;
     renderizarPantallas();
-}
-
-function cargarFotoCaso(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById('panelFotoPreview');
-        const svgContainer = document.getElementById('panelSvgDefault');
-
-        preview.src = e.target.result;
-        preview.classList.remove('hidden-img');
-        preview.dataset.custom = "true";
-        svgContainer.style.display = 'none';
-
-        document.getElementById('selectFenomeno').value = 'custom';
-        cambiarFenomeno();
-    };
-    reader.readAsDataURL(file);
 }
 
 // Dibujar Gráfica
@@ -232,6 +210,7 @@ function cambiarPestana(tabId) {
     document.getElementById(tabId).classList.remove('hidden');
     if (tabId === 'tab-grafica') {
         document.getElementById('btnTabGrafica').classList.add('active');
+        if (graficaRK4) graficaRK4.resize();
     } else {
         document.getElementById('btnTabTabla').classList.add('active');
     }
