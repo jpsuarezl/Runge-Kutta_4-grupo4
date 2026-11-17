@@ -1,9 +1,9 @@
 # Grupo 4: Método de Runge-Kutta de Cuarto Orden (RK4)
 ## Integrantes y Roles
-* **[Dhamar Sofia Patiño Cortina]:** poner rol
-* **[Santiago Florez Muñoz]:** poner rol
+* **[Dhamar Sofia Patiño Cortina]:** Desarrollo de todos los ejercicios
+* **[Santiago Florez Muñoz]:** Contexto, introducción y fundamento 
 * **[Johan Esteban Valero Hernandez]:** poner rol
-* **[Jean Paul Suarez Luna]:** poner rol
+* **[Jean Paul Suarez Luna]:** 
 
 ---
 
