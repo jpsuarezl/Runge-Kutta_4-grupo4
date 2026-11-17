@@ -104,8 +104,12 @@ function cambiarFenomeno() {
         estadoCampos[field].pos = data[field].length;
     });
 
+    const btnLimpiarTodo = document.getElementById('btnLimpiarTodo');
     if (key === 'custom') {
         campoActivoId = 'eq';
+        if (btnLimpiarTodo) btnLimpiarTodo.classList.remove('hidden');
+    } else {
+        if (btnLimpiarTodo) btnLimpiarTodo.classList.add('hidden');
     }
 
     const svgContainer = document.getElementById('panelSvgDefault');
