@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Hoja de Estilos Externa (con control de caché) -->
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
@@ -139,7 +139,7 @@
                         <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()" style="flex: 2;">
                             Ejecutar Cálculo RK4
                         </button>
-                        <button type="button" onclick="limpiarTodo()" style="flex: 1; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem;" title="Limpiar todos los campos y resultados">
+                        <button type="button" id="btnLimpiarTodo" class="hidden" onclick="limpiarTodo()" style="flex: 1; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem;" title="Limpiar todos los campos y resultados">
                             Limpiar Todo
                         </button>
                     </div>
@@ -219,6 +219,6 @@
     </div>
 
     <!-- Lógica Principal (con control de caché) -->
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
