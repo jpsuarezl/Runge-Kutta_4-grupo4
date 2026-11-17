@@ -71,6 +71,18 @@ function seleccionarCampo(id) {
     renderizarPantallas();
 }
 
+function limpiarResultados() {
+    document.getElementById('kpiPasos').innerText = "0";
+    document.getElementById('kpiYFinal').innerText = "0.0000";
+    document.getElementById('kpiH').innerText = "0.00";
+    document.getElementById('tablaResultados').innerHTML = "";
+    detallesIteraciones = [];
+    if (graficaRK4) {
+        graficaRK4.destroy();
+        graficaRK4 = null;
+    }
+}
+
 function cambiarFenomeno() {
     const key = document.getElementById('selectFenomeno').value;
     const data = presetsFisicos[key];
@@ -87,6 +99,7 @@ function cambiarFenomeno() {
         svgContainer.style.display = 'block';
     }
 
+    limpiarResultados();
     ocultarError();
     renderizarPantallas();
 }
@@ -399,5 +412,4 @@ document.addEventListener('keydown', function(e) {
 window.onload = function() {
     cambiarFenomeno();
     renderizarPantallas();
-    // Se eliminó iniciarCalculo() de aquí para que no calcule hasta presionar Enter o el botón
 };
