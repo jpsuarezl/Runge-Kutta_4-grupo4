@@ -259,7 +259,9 @@ function calcularRK4() {
 
     let f;
     try {
-        f = math.compile(eqStr);
+        // Normalizar ctg() a cot() para compatibilidad con Math.js
+        const eqNormalizada = eqStr.replace(/\bctg\s*\(/gi, 'cot(');
+        f = math.compile(eqNormalizada);
         f.evaluate({ x: x0, y: y0 });
     } catch (error) {
         return mostrarError("Sintaxis de ecuación no válida. Use '*' para multiplicar (ej: 0.15*y).");
@@ -354,7 +356,7 @@ function calcularRK4() {
         });
 
         y = y_next;
-        x = x + h;
+        x = x0 + (iteracion * h);
 
         arr_x.push(x);
         arr_y.push(y);
@@ -383,6 +385,41 @@ function calcularRK4() {
 
     dibujarGrafica(arr_x, arr_y, eqStr);
 }
+
+// Soporte para teclado físico (PC / Laptop)
+document.addEventListener('keydown', function(e) {
+    const modalSust = !document.getElementById('modalSustitucion').classList.contains('hidden');
+    const modalEq = !document.getElementById('modalEquipo').classList.contains('hidden');
+    if (modalSust || modalEq || document.activeElement.tagName === 'SELECT') return;
+
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        moverCursor(-1);
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        moverCursor(1);
+    } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        borrarCaracter();
+    } else if (e.key === 'Delete') {
+        e.preventDefault();
+        limpiarCampo();
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        iniciarCalculo();
+    } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const ordenCampos = ['eq', 'x0', 'y0', 'xf', 'h'];
+        const idxActual = ordenCampos.indexOf(campoActivoId);
+        const siguienteIdx = e.shiftKey 
+            ? (idxActual - 1 + ordenCampos.length) % ordenCampos.length 
+            : (idxActual + 1) % ordenCampos.length;
+        seleccionarCampo(ordenCampos[siguienteIdx]);
+    } else if (/^[0-9a-zA-Z+\-*/^().]$/.test(e.key)) {
+        e.preventDefault();
+        insertarTexto(e.key);
+    }
+});
 
 window.onload = function() {
     cambiarFenomeno();
