@@ -2,16 +2,14 @@ let graficaRK4 = null;
 let detallesIteraciones = [];
 let campoActivoId = 'eq';
 
-// Estado de los datos de cada campo
 const estadoCampos = {
     eq: { texto: "9.81 - 0.15*y", pos: 13 },
     x0: { texto: "0", pos: 1 },
     y0: { texto: "0", pos: 1 },
     xf: { texto: "10", pos: 2 },
-    h:  { texto: "0.2", pos: 3 }
+    h: { texto: "0.2", pos: 3 }
 };
 
-// Base de datos de fenómenos predeterminados
 const presetsFisicos = {
     caida: {
         eq: "9.81 - 0.15*y", x0: "0", y0: "0", xf: "10", h: "0.2",
@@ -45,7 +43,6 @@ const presetsFisicos = {
     }
 };
 
-// Renderiza el contenido de los campos mostrando el cursor parpadeante |
 function renderizarPantallas() {
     Object.keys(estadoCampos).forEach(id => {
         const display = document.getElementById(`display_${id}`);
@@ -94,21 +91,19 @@ function cambiarFenomeno() {
     renderizarPantallas();
 }
 
-// Mueve el cursor a la izquierda (-1) o derecha (+1)
 function moverCursor(dir) {
     const c = estadoCampos[campoActivoId];
     c.pos = Math.max(0, Math.min(c.texto.length, c.pos + dir));
     renderizarPantallas();
 }
 
-// Inserta texto respetando la posición actual del cursor
 function insertarTexto(t) {
     const c = estadoCampos[campoActivoId];
     const antes = c.texto.substring(0, c.pos);
     const despues = c.texto.substring(c.pos);
 
     c.texto = antes + t + despues;
-    
+
     if (t.endsWith('()')) {
         c.pos = c.pos + t.length - 1;
     } else {
@@ -117,7 +112,6 @@ function insertarTexto(t) {
     renderizarPantallas();
 }
 
-// Borra el carácter exacto a la izquierda del cursor
 function borrarCaracter() {
     const c = estadoCampos[campoActivoId];
     if (c.pos > 0) {
@@ -136,7 +130,6 @@ function limpiarCampo() {
     renderizarPantallas();
 }
 
-// Dibujar Gráfica
 function dibujarGrafica(xData, yData, eqStr) {
     if (typeof Chart === 'undefined') return;
 
@@ -172,7 +165,6 @@ function dibujarGrafica(xData, yData, eqStr) {
     });
 }
 
-// Modales
 function abrirModalEquipo() { document.getElementById('modalEquipo').classList.remove('hidden'); }
 function cerrarModalEquipo() { document.getElementById('modalEquipo').classList.add('hidden'); }
 
@@ -190,7 +182,7 @@ function cerrarModal() { document.getElementById('modalSustitucion').classList.a
 window.onclick = function(event) {
     if (event.target == document.getElementById('modalSustitucion')) cerrarModal();
     if (event.target == document.getElementById('modalEquipo')) cerrarModalEquipo();
-}
+};
 
 function mostrarError(msj) {
     const div = document.getElementById('mensajeError');
@@ -203,7 +195,7 @@ function ocultarError() { document.getElementById('mensajeError').classList.add(
 function cambiarPestana(tabId) {
     document.getElementById('tab-grafica').classList.add('hidden');
     document.getElementById('tab-tabla').classList.add('hidden');
-    
+
     document.getElementById('btnTabGrafica').classList.remove('active');
     document.getElementById('btnTabTabla').classList.remove('active');
 
@@ -238,7 +230,6 @@ function iniciarCalculo() {
     }, 100);
 }
 
-// Cálculo RK4
 function calcularRK4() {
     ocultarError();
 
@@ -259,7 +250,6 @@ function calcularRK4() {
 
     let f;
     try {
-        // Normalizar ctg() a cot() para compatibilidad con Math.js
         const eqNormalizada = eqStr.replace(/\bctg\s*\(/gi, 'cot(');
         f = math.compile(eqNormalizada);
         f.evaluate({ x: x0, y: y0 });
@@ -302,51 +292,46 @@ function calcularRK4() {
         let x1 = x, y1 = y;
         let k1 = f.evaluate({ x: x1, y: y1 });
 
-        let x2 = x + h/2, y2 = y + (h/2)*k1;
+        let x2 = x + h / 2, y2 = y + (h / 2) * k1;
         let k2 = f.evaluate({ x: x2, y: y2 });
 
-        let x3 = x + h/2, y3 = y + (h/2)*k2;
+        let x3 = x + h / 2, y3 = y + (h / 2) * k2;
         let k3 = f.evaluate({ x: x3, y: y3 });
 
-        let x4 = x + h, y4 = y + h*k3;
+        let x4 = x + h, y4 = y + h * k3;
         let k4 = f.evaluate({ x: x4, y: y4 });
 
-        let y_next = y + (h / 6) * (k1 + 2*k2 + 2*k3 + k4);
+        let y_next = y + (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
         iteracion++;
 
         detallesIteraciones.push({
             iter: iteracion,
             htmlModal: `
                 <div style="background:#f8fafc; border-left:3px solid #4338ca; padding:0.85rem; margin-bottom:0.5rem; font-family:monospace; font-size:0.82rem; line-height:1.7;">
-                    <!-- k1 -->
                     <strong>k₁:</strong><br>
                     x₁ = ${x1.toFixed(4)}<br>
                     y₁ = ${y1.toFixed(6)}<br>
                     k₁ = f(${x1.toFixed(4)}, ${y1.toFixed(6)}) = ${formatearSustitucion(eqStr, x1.toFixed(4), y1.toFixed(6))}<br>
                     → <strong>k₁ = ${k1.toFixed(6)}</strong><br><br>
 
-                    <!-- k2 -->
                     <strong>k₂:</strong><br>
                     x₂ = x + h/2 = ${x1.toFixed(4)} + ${h}/2 = <strong>${x2.toFixed(4)}</strong><br>
                     y₂ = y + (h/2)·k₁ = ${y1.toFixed(6)} + (${h}/2)·(${k1.toFixed(6)}) = <strong>${y2.toFixed(6)}</strong><br>
                     k₂ = f(${x2.toFixed(4)}, ${y2.toFixed(6)}) = ${formatearSustitucion(eqStr, x2.toFixed(4), y2.toFixed(6))}<br>
                     → <strong>k₂ = ${k2.toFixed(6)}</strong><br><br>
 
-                    <!-- k3 -->
                     <strong>k₃:</strong><br>
                     x₃ = x + h/2 = ${x1.toFixed(4)} + ${h}/2 = <strong>${x3.toFixed(4)}</strong><br>
                     y₃ = y + (h/2)·k₂ = ${y1.toFixed(6)} + (${h}/2)·(${k2.toFixed(6)}) = <strong>${y3.toFixed(6)}</strong><br>
                     k₃ = f(${x3.toFixed(4)}, ${y3.toFixed(6)}) = ${formatearSustitucion(eqStr, x3.toFixed(4), y3.toFixed(6))}<br>
                     → <strong>k₃ = ${k3.toFixed(6)}</strong><br><br>
 
-                    <!-- k4 -->
                     <strong>k₄:</strong><br>
                     x₄ = x + h = ${x1.toFixed(4)} + ${h} = <strong>${x4.toFixed(4)}</strong><br>
                     y₄ = y + h·k₃ = ${y1.toFixed(6)} + ${h}·(${k3.toFixed(6)}) = <strong>${y4.toFixed(6)}</strong><br>
                     k₄ = f(${x4.toFixed(4)}, ${y4.toFixed(6)}) = ${formatearSustitucion(eqStr, x4.toFixed(4), y4.toFixed(6))}<br>
                     → <strong>k₄ = ${k4.toFixed(6)}</strong><br><br>
 
-                    <!-- Resultado Final Iteración -->
                     <hr style="border:0; border-top:1px solid #cbd5e1; margin:0.6rem 0;">
                     <strong>Nuevo y (RK4):</strong><br>
                     y_{${iteracion}} = ${y1.toFixed(6)} + (${h}/6)·[${k1.toFixed(6)} + 2(${k2.toFixed(6)}) + 2(${k3.toFixed(6)}) + ${k4.toFixed(6)}]<br>
@@ -375,7 +360,7 @@ function calcularRK4() {
 
         if (iteracion > 3000) break;
     }
-    
+
     htmlTabla += '</tbody>';
 
     document.getElementById('kpiPasos').innerText = iteracion;
@@ -386,7 +371,6 @@ function calcularRK4() {
     dibujarGrafica(arr_x, arr_y, eqStr);
 }
 
-// Soporte para teclado físico (PC / Laptop)
 document.addEventListener('keydown', function(e) {
     const modalSust = !document.getElementById('modalSustitucion').classList.contains('hidden');
     const modalEq = !document.getElementById('modalEquipo').classList.contains('hidden');
@@ -411,8 +395,8 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
         const ordenCampos = ['eq', 'x0', 'y0', 'xf', 'h'];
         const idxActual = ordenCampos.indexOf(campoActivoId);
-        const siguienteIdx = e.shiftKey 
-            ? (idxActual - 1 + ordenCampos.length) % ordenCampos.length 
+        const siguienteIdx = e.shiftKey
+            ? (idxActual - 1 + ordenCampos.length) % ordenCampos.length
             : (idxActual + 1) % ordenCampos.length;
         seleccionarCampo(ordenCampos[siguienteIdx]);
     } else if (/^[0-9a-zA-Z+\-*/^().]$/.test(e.key)) {
