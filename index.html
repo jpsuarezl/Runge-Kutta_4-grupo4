@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Hoja de Estilos Externa (con control de caché) -->
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 
@@ -135,17 +135,15 @@
                         <button type="button" onclick="insertarTexto('y')" class="btn-key-var">y</button>
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()" style="flex: 2;">
-                            Ejecutar Cálculo RK4
-                        </button>
-                    </div>
+                    <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
+                        Ejecutar Cálculo RK4
+                    </button>
                 </section>
             </main>
 
             <!-- PANEL DERECHO: Resultados -->
             <aside>
-                <div class="kpi-container">
+                <div class="kpi-container" style="grid-template-columns: repeat(4, 1fr);">
                     <div class="kpi-card">
                         <span class="kpi-title">ITERACIONES</span>
                         <span id="kpiPasos" class="kpi-value">0</span>
@@ -157,6 +155,10 @@
                     <div class="kpi-card">
                         <span class="kpi-title">PASO (h)</span>
                         <span id="kpiH" class="kpi-value">0.00</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-title">ERROR EST. (%)</span>
+                        <span id="kpiError" class="kpi-value" style="color: #059669;">0.0000%</span>
                     </div>
                 </div>
 
@@ -216,6 +218,6 @@
     </div>
 
     <!-- Lógica Principal (con control de caché) -->
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>
