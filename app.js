@@ -75,7 +75,8 @@ function limpiarResultados() {
     document.getElementById('kpiPasos').innerText = "0";
     document.getElementById('kpiYFinal').innerText = "0.0000";
     document.getElementById('kpiH').innerText = "0.00";
-    document.getElementById('kpiError').innerText = "0.0000%";
+    document.getElementById('kpiError').innerText = "0.000000";
+    document.getElementById('kpiErrorPct').innerText = "(0.0000%)";
     document.getElementById('tablaResultados').innerHTML = "";
     detallesIteraciones = [];
     if (graficaRK4) {
@@ -395,7 +396,7 @@ function calcularRK4() {
 
     htmlTabla += '</tbody>';
 
-    // Cálculo automático de referencia con paso fino (h / 10) para estimar el error relativo (%)
+    // Cálculo automático de referencia con paso fino (h / 10) para estimar el error absoluto y porcentual
     const hRef = h / 10;
     let xRef = x0;
     let yRef = y0;
@@ -412,19 +413,24 @@ function calcularRK4() {
         xRef = x0 + (pasosRef * hRef);
     }
 
-    let errorPorcentual = 0;
-    if (Math.abs(yRef) > 1e-12) {
-        errorPorcentual = Math.abs((yRef - y) / yRef) * 100;
-    } else {
-        errorPorcentual = Math.abs(yRef - y) * 100;
-    }
+    const errorAbsoluto = Math.abs(yRef - y);
+    const errorPorcentual = Math.abs(yRef) > 1e-12
+        ? (errorAbsoluto / Math.abs(yRef)) * 100
+        : errorAbsoluto * 100;
 
     document.getElementById('kpiPasos').innerText = iteracion;
     document.getElementById('kpiYFinal').innerText = y.toFixed(4);
     document.getElementById('kpiH').innerText = h;
-    document.getElementById('kpiError').innerText = errorPorcentual < 0.0001 && errorPorcentual > 0
+
+    document.getElementById('kpiError').innerText = errorAbsoluto < 0.000001 && errorAbsoluto > 0
+        ? errorAbsoluto.toExponential(2)
+        : errorAbsoluto.toFixed(6);
+
+    const pctTexto = errorPorcentual < 0.0001 && errorPorcentual > 0
         ? errorPorcentual.toExponential(2) + "%"
         : errorPorcentual.toFixed(4) + "%";
+    document.getElementById('kpiErrorPct').innerText = `(${pctTexto})`;
+
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
 
     dibujarGrafica(arr_x, arr_y, eqStr);
