@@ -75,6 +75,7 @@ function limpiarResultados() {
     document.getElementById('kpiPasos').innerText = "0";
     document.getElementById('kpiYFinal').innerText = "0.0000";
     document.getElementById('kpiH').innerText = "0.00";
+    document.getElementById('kpiError').innerText = "0.0000%";
     document.getElementById('tablaResultados').innerHTML = "";
     detallesIteraciones = [];
     if (graficaRK4) {
@@ -119,6 +120,7 @@ function cambiarFenomeno() {
     ocultarError();
     renderizarPantallas();
 }
+
 function moverCursor(dir) {
     const c = estadoCampos[campoActivoId];
     c.pos = Math.max(0, Math.min(c.texto.length, c.pos + dir));
@@ -371,7 +373,7 @@ function calcularRK4() {
         });
 
         y = y_next;
-        x = x + h;
+        x = x0 + (iteracion * h);
 
         arr_x.push(x);
         arr_y.push(y);
@@ -393,9 +395,36 @@ function calcularRK4() {
 
     htmlTabla += '</tbody>';
 
+    // Cálculo automático de referencia con paso fino (h / 10) para estimar el error relativo (%)
+    const hRef = h / 10;
+    let xRef = x0;
+    let yRef = y0;
+    let pasosRef = 0;
+
+    while (xRef < xf - (hRef * 0.001) && pasosRef < 30000) {
+        let k1r = f.evaluate({ x: xRef, y: yRef });
+        let k2r = f.evaluate({ x: xRef + hRef / 2, y: yRef + (hRef / 2) * k1r });
+        let k3r = f.evaluate({ x: xRef + hRef / 2, y: yRef + (hRef / 2) * k2r });
+        let k4r = f.evaluate({ x: xRef + hRef, y: yRef + hRef * k3r });
+
+        yRef = yRef + (hRef / 6) * (k1r + 2 * k2r + 2 * k3r + k4r);
+        pasosRef++;
+        xRef = x0 + (pasosRef * hRef);
+    }
+
+    let errorPorcentual = 0;
+    if (Math.abs(yRef) > 1e-12) {
+        errorPorcentual = Math.abs((yRef - y) / yRef) * 100;
+    } else {
+        errorPorcentual = Math.abs(yRef - y) * 100;
+    }
+
     document.getElementById('kpiPasos').innerText = iteracion;
     document.getElementById('kpiYFinal').innerText = y.toFixed(4);
     document.getElementById('kpiH').innerText = h;
+    document.getElementById('kpiError').innerText = errorPorcentual < 0.0001 && errorPorcentual > 0
+        ? errorPorcentual.toExponential(2) + "%"
+        : errorPorcentual.toFixed(4) + "%";
     document.getElementById('tablaResultados').innerHTML = htmlTabla;
 
     dibujarGrafica(arr_x, arr_y, eqStr);
