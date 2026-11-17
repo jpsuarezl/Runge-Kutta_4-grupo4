@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Hoja de Estilos Externa (con control de caché) -->
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
@@ -94,7 +94,7 @@
 
                     <!-- TECLADO VIRTUAL TÁCTIL CON NAVEGACIÓN -->
                     <div class="virtual-keypad">
-                        <button type="button" onclick="limpiarCampo()" class="btn-key-clear" title="Limpiar todo">C</button>
+                        <button type="button" onclick="limpiarCampo()" class="btn-key-clear" title="Limpiar campo actual">C</button>
                         <button type="button" onclick="borrarCaracter()" class="btn-key-action" title="Borrar uno">⌫</button>
                         <button type="button" onclick="moverCursor(-1)" class="btn-key-nav" title="Mover a la izquierda">◀</button>
                         <button type="button" onclick="moverCursor(1)" class="btn-key-nav" title="Mover a la derecha">▶</button>
@@ -135,9 +135,14 @@
                         <button type="button" onclick="insertarTexto('y')" class="btn-key-var">y</button>
                     </div>
 
-                    <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()">
-                        Ejecutar Cálculo RK4
-                    </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btnCalcular" class="btn-action" onclick="iniciarCalculo()" style="flex: 2;">
+                            Ejecutar Cálculo RK4
+                        </button>
+                        <button type="button" onclick="limpiarTodo()" style="flex: 1; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem;" title="Limpiar todos los campos y resultados">
+                            Limpiar Todo
+                        </button>
+                    </div>
                 </section>
             </main>
 
@@ -214,6 +219,6 @@
     </div>
 
     <!-- Lógica Principal (con control de caché) -->
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
