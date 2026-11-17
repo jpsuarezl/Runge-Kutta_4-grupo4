@@ -99,24 +99,26 @@ function cambiarFenomeno() {
     const data = presetsFisicos[key];
     if (!data) return;
 
-    ['eq', 'x0', 'y0', 'xf', 'h'].forEach(field => {
-        estadoCampos[field].texto = data[field];
-        estadoCampos[field].pos = data[field].length;
-    });
-
-    const btnLimpiarTodo = document.getElementById('btnLimpiarTodo');
-    if (key === 'custom') {
-        campoActivoId = 'eq';
-        if (btnLimpiarTodo) btnLimpiarTodo.classList.remove('hidden');
-    } else {
-        if (btnLimpiarTodo) btnLimpiarTodo.classList.add('hidden');
-    }
-
     const svgContainer = document.getElementById('panelSvgDefault');
     if (svgContainer) {
         svgContainer.innerHTML = data.svgHTML;
         svgContainer.style.display = 'block';
     }
+
+    const btnLimpiarTodo = document.getElementById('btnLimpiarTodo');
+
+    if (key === 'custom') {
+        if (btnLimpiarTodo) btnLimpiarTodo.classList.remove('hidden');
+        limpiarTodo();
+        return;
+    }
+
+    if (btnLimpiarTodo) btnLimpiarTodo.classList.add('hidden');
+
+    ['eq', 'x0', 'y0', 'xf', 'h'].forEach(field => {
+        estadoCampos[field].texto = data[field];
+        estadoCampos[field].pos = data[field].length;
+    });
 
     limpiarResultados();
     ocultarError();
