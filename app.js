@@ -83,6 +83,17 @@ function limpiarResultados() {
     }
 }
 
+function limpiarTodo() {
+    ['eq', 'x0', 'y0', 'xf', 'h'].forEach(field => {
+        estadoCampos[field].texto = "";
+        estadoCampos[field].pos = 0;
+    });
+    campoActivoId = 'eq';
+    limpiarResultados();
+    ocultarError();
+    renderizarPantallas();
+}
+
 function cambiarFenomeno() {
     const key = document.getElementById('selectFenomeno').value;
     const data = presetsFisicos[key];
@@ -92,6 +103,10 @@ function cambiarFenomeno() {
         estadoCampos[field].texto = data[field];
         estadoCampos[field].pos = data[field].length;
     });
+
+    if (key === 'custom') {
+        campoActivoId = 'eq';
+    }
 
     const svgContainer = document.getElementById('panelSvgDefault');
     if (svgContainer) {
@@ -122,6 +137,7 @@ function insertarTexto(t) {
     } else {
         c.pos = c.pos + t.length;
     }
+    limpiarResultados();
     renderizarPantallas();
 }
 
@@ -132,6 +148,7 @@ function borrarCaracter() {
         const despues = c.texto.substring(c.pos);
         c.texto = antes + despues;
         c.pos--;
+        limpiarResultados();
         renderizarPantallas();
     }
 }
@@ -140,6 +157,7 @@ function limpiarCampo() {
     const c = estadoCampos[campoActivoId];
     c.texto = "";
     c.pos = 0;
+    limpiarResultados();
     renderizarPantallas();
 }
 
