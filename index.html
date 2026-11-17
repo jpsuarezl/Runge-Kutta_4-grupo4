@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Hoja de Estilos Externa (con control de caché) -->
-    <link rel="stylesheet" href="styles.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
@@ -157,8 +157,9 @@
                         <span id="kpiH" class="kpi-value">0.00</span>
                     </div>
                     <div class="kpi-card">
-                        <span class="kpi-title">ERROR EST. (%)</span>
-                        <span id="kpiError" class="kpi-value" style="color: #059669;">0.0000%</span>
+                        <span class="kpi-title">ERROR EST. (ABS / %)</span>
+                        <span id="kpiError" class="kpi-value" style="color: #059669; font-size: 1.25rem;">0.000000</span>
+                        <span id="kpiErrorPct" style="font-size: 0.78rem; color: #64748b; font-weight: 700; display: block; margin-top: 2px;">(0.0000%)</span>
                     </div>
                 </div>
 
@@ -218,6 +219,6 @@
     </div>
 
     <!-- Lógica Principal (con control de caché) -->
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
 </body>
 </html>
