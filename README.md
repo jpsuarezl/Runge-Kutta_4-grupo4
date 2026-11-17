@@ -2,8 +2,8 @@
 ## Integrantes y Roles
 * **[Dhamar Sofia Patiño Cortina]:** Desarrollo de todos los ejercicios
 * **[Santiago Florez Muñoz]:** Contexto, introducción y fundamento 
-* **[Johan Esteban Valero Hernandez]:** poner rol
-* **[Jean Paul Suarez Luna]:** 
+* **[Johan Esteban Valero Hernandez]:** Aplicaciones
+* **[Jean Paul Suarez Luna]:** Explicacion pagina web
 
 ---
 
