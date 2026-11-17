@@ -403,6 +403,14 @@ document.addEventListener('keydown', function(e) {
     } else if (e.key === 'Enter') {
         e.preventDefault();
         iniciarCalculo();
+    } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const ordenCampos = ['eq', 'x0', 'y0', 'xf', 'h'];
+        const idxActual = ordenCampos.indexOf(campoActivoId);
+        const siguienteIdx = e.shiftKey
+            ? (idxActual - 1 + ordenCampos.length) % ordenCampos.length
+            : (idxActual + 1) % ordenCampos.length;
+        seleccionarCampo(ordenCampos[siguienteIdx]);
     } else if (/^[0-9a-zA-Z+\-*/^().]$/.test(e.key)) {
         e.preventDefault();
         insertarTexto(e.key);
