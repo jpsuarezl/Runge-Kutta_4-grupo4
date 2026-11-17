@@ -105,15 +105,10 @@ function cambiarFenomeno() {
         svgContainer.style.display = 'block';
     }
 
-    const btnLimpiarTodo = document.getElementById('btnLimpiarTodo');
-
     if (key === 'custom') {
-        if (btnLimpiarTodo) btnLimpiarTodo.classList.remove('hidden');
         limpiarTodo();
         return;
     }
-
-    if (btnLimpiarTodo) btnLimpiarTodo.classList.add('hidden');
 
     ['eq', 'x0', 'y0', 'xf', 'h'].forEach(field => {
         estadoCampos[field].texto = data[field];
@@ -124,7 +119,6 @@ function cambiarFenomeno() {
     ocultarError();
     renderizarPantallas();
 }
-
 function moverCursor(dir) {
     const c = estadoCampos[campoActivoId];
     c.pos = Math.max(0, Math.min(c.texto.length, c.pos + dir));
