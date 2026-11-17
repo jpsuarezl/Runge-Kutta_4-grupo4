@@ -399,5 +399,5 @@ document.addEventListener('keydown', function(e) {
 window.onload = function() {
     cambiarFenomeno();
     renderizarPantallas();
-    iniciarCalculo();
+    // Se eliminó iniciarCalculo() de aquí para que no calcule hasta presionar Enter o el botón
 };
